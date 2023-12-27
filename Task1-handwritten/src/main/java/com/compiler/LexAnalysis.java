@@ -1,0 +1,202 @@
+package com.compiler;
+
+import java.io.*;
+
+public class LexAnalysis {
+
+    private CharTable charTable = new CharTable();// 词法分析表
+    private String[] symTable = charTable.getSymTable(); // 符号表
+    private String[] constTable = charTable.getConstTable(); // 常量表
+
+    private char ch = ' '; // 当前字符
+    private int sy = 0; // 当前符号
+    private String strToken; // 当前标记字符串
+    private String filename; // 文件名
+    private char[] buffer; // 字符缓冲区
+    private int searchPtr = 0; // 搜索指针
+    private static int line = 1; // 当前行号
+    static int isNewLine = 0; // 判断是否是新的一行
+
+    // 构造函数
+    public LexAnalysis(String _filename) {
+        // 初始化符号表和常量表
+        for (int i = 0; i < symTable.length; i++) {
+            symTable[i] = null;
+        }
+        for (int j = 0; j < constTable.length; j++) {
+            constTable[j] = null;
+        }
+        filename = _filename;
+    }
+
+    /**
+     * 预处理函数：
+     * 功能：读取源文件内容到字符数组buffer中去，包括换行符
+     */
+    public void preManage() {
+        File file = new File(filename);
+        BufferedReader bf = null;
+        try {
+            bf = new BufferedReader(new FileReader(file));
+            String temp1 = "", temp2 = "";
+            // 逐行读取文件内容
+            while ((temp1 = bf.readLine()) != null) {
+                temp2 = temp2 + temp1 + String.valueOf('\n');
+            }
+            buffer = temp2.toCharArray(); // 将内容存入字符数组buffer
+            bf.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("文件不存在");
+        } catch (IOException e) {
+            System.out.println("文件无法打开");
+        }
+    }
+
+    /**
+     * 获取下一个符号
+     *
+     * @return {@link String}
+     */
+    public String nextSym() {
+        isNewLine = 0;// 重置isNewLine标志，表示当前不是新的一行。
+        strToken = "";//清空当前标记字符串
+        getBC(); // 去除空格符
+        int nul = 0;//初始化变量nul为0，后续用于表示一些特殊情况
+        if (isLetter()) { // 如果当前字符是字母，表示可能是标识符或关键字
+            //读取字符并连接到当前标记字符串中，直到不是字母或数字为止
+            do {
+                concat();// 连接字符到当前标记字符串
+                getChar();// 获取下一个字符
+            } while (isLetter() || isDigit());
+            if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
+                sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
+            } else {//如果不是关键字，将nul赋给sy，并调用Errors.error(0)报告标识符过长的错误。
+                sy = nul;
+                Errors.error(0); // 标识符过长
+            }
+        } else if (isDigit()) { // 如果当前字符是数字，表示可能是整数。
+            int intcon = 1;
+            sy = intcon;//设置sy为1，表示整数。
+            do {//读取字符并连接到当前标记字符串中，直到不是数字为止。
+                concat();
+                getChar();
+            } while (isDigit());
+            if (strToken.length() > 9) {//如果当前标记字符串的长度超过9，调用Errors.error(1)报告整数过长的错误。
+                sy = nul;
+                Errors.error(1); // 整数过长
+            }
+        } else if (ch == ':') { //  如果当前字符是冒号，表示可能是赋值符或冒号
+            concat();
+            getChar();
+            int becomes = 18;
+            if (ch == '=') {//读取下一个字符，如果是等号，则表示赋值符，设置sy为18。
+                concat();
+                sy = becomes;
+                getChar();
+            } else {//如果不是等号，表示冒号，同样设置sy为18，并调用Errors.error(7)报告赋值符应该有等号的错误。
+                sy = becomes;
+                getChar();
+                Errors.error(7); // 赋值符应该有等号
+            }
+        } else if (ch == '<') { //如果当前字符是小于号，表示可能是小于或小于等于。
+            concat();
+            getChar();
+            int lss = 10;
+            if (ch == '=') {//读取下一个字符，如果是等号，则表示小于等于，设置sy为11。
+                concat();
+                int leq = 11;
+                sy = leq;
+                getChar();
+            } else if (ch == '>') {//读取下一个字符，如果是大于号，则表示不等于，设置sy为7。
+                concat();
+                int neq = 7;
+                sy = neq;
+                getChar();
+            } else sy = lss;//如果不是等号，表示小于，设置sy为10。
+        } else if (ch == '#') { // 不等于
+            concat();
+            int neq = 7;
+            sy = neq;
+            getChar();
+        } else if (ch == '>') { // 大于，大于等于
+            getChar();
+            int gtr = 8;
+            if (ch == '=') {//读取下一个字符，如果是等号，则表示大于等于，设置sy为9。
+                concat();
+                int geq = 9;
+                sy = geq;
+                getChar();
+            } else sy = gtr;//如果不是等号，表示大于，设置sy为8。
+        } else if (ch == '.') { //  如果当前字符是句点，表示结束符
+            concat();
+            int period = 16;
+            sy = period;
+        } else { // 读取其他合法字符：+、-、*、/、:=、=、<>、>、>=、<、<=、（、）、；、，
+            concat();
+            sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
+            if (sy == nul) {
+                Errors.error(2); //如果符号值为nul，表示字符非法，调用Errors.error(2)报告非法字符的错误。
+            }
+            getChar();
+        }
+        return strToken;
+    }
+
+    // 获取当前字符
+    public char getChar() {
+        if (searchPtr < buffer.length) {// 判断是否到达文件尾
+            ch = buffer[searchPtr];// 获取当前字符
+            searchPtr++;        // 搜索指针后移
+        }
+        return ch;// 返回当前字符
+    }
+
+    // 去除空格符
+    public void getBC() {
+        while ((ch == ' ' || ch == '	' || ch == '\n') && (searchPtr < buffer.length)) {
+            if (ch == '\n') {
+                line++;
+                isNewLine = 1;
+            }
+            getChar();
+        }
+    }
+
+    // 连接字符到当前标记字符串
+    public void concat() {
+        strToken = strToken + String.valueOf(ch);
+    }
+
+    // 判断是否为字母
+    public boolean isLetter() {
+        return Character.isLetter(ch);
+    }
+
+    // 判断是否为数字
+    public boolean isDigit() {
+        return Character.isDigit(ch);
+    }
+
+    // 获取当前标记字符串
+    public String getStrToken() {
+        return strToken;
+    }
+
+    // 显示错误信息
+    public void showError() {
+        System.out.println();
+        System.out.print("ERROR: 在第 " + line + " 行无法识别该单词");
+        System.out.println();
+    }
+
+    // 获取当前行号
+    public static int getLine() {
+        return line - isNewLine;
+    }
+
+    // 获取当前符号
+    public int getSy() {
+        return sy;
+    }
+
+}
