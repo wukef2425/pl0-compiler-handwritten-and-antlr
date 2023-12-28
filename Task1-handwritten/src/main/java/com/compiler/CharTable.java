@@ -19,12 +19,12 @@ public class CharTable {
         keyWord.put("PROGRAM",21);
         keyWord.put("BEGIN",23);
         keyWord.put("END",30);
-        keyWord.put("IF",24);
-        keyWord.put("THEN",33);
         keyWord.put("CONST",19);
         keyWord.put("VAR",20);
-        keyWord.put("DO",32);
         keyWord.put("WHILE",25);
+        keyWord.put("DO",32);
+        keyWord.put("IF",24);
+        keyWord.put("THEN",33);
         punctuationMark.put("+",3);
         punctuationMark.put("-",2);
         punctuationMark.put("*",4);
