@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CharTable {
-    private HashMap keyWord = new HashMap<String,Integer>();
-    private HashMap punctuationMark = new HashMap<String,Integer>();
+    private HashMap keyWord = new HashMap<String,EnumChar>();
+    private HashMap punctuationMark = new HashMap<String,EnumChar>();
     private int symLength=100;
     private String[] symTable=new String[symLength];
 
@@ -16,42 +16,42 @@ public class CharTable {
      * 字符表
      */
     public  CharTable(){
-        keyWord.put("PROGRAM",EnumChar.procsy.ordinal());
-        keyWord.put("BEGIN",EnumChar.beginsy.ordinal());
-        keyWord.put("END",EnumChar.endsy.ordinal());
-        keyWord.put("IF",EnumChar.ifsy.ordinal());
-        keyWord.put("THEN",EnumChar.thensy.ordinal());
-        keyWord.put("CONST",EnumChar.constsy.ordinal());
-        keyWord.put("VAR",EnumChar.varsy.ordinal());
-        keyWord.put("DO",EnumChar.dosy.ordinal());
-        keyWord.put("WHILE",EnumChar.whilesy.ordinal());
-        punctuationMark.put("+",EnumChar.plussy.ordinal());
-        punctuationMark.put("-",EnumChar.minussy.ordinal());
-        punctuationMark.put("*",EnumChar.multisy.ordinal());
-        punctuationMark.put("/",EnumChar.divsy.ordinal());
-        punctuationMark.put("(",EnumChar.lparent.ordinal());
-        punctuationMark.put(")",EnumChar.rparent.ordinal());
-        punctuationMark.put("=",EnumChar.eql.ordinal());
-        punctuationMark.put(",",EnumChar.comma.ordinal());
-        punctuationMark.put(":",EnumChar.colon.ordinal());
-        punctuationMark.put(";",EnumChar.semicolon.ordinal());
+        keyWord.put("PROGRAM",EnumChar.procsy);
+        keyWord.put("BEGIN",EnumChar.beginsy);
+        keyWord.put("END",EnumChar.endsy );
+        keyWord.put("IF",EnumChar.ifsy );
+        keyWord.put("THEN",EnumChar.thensy);
+        keyWord.put("CONST",EnumChar.constsy );
+        keyWord.put("VAR",EnumChar.varsy );
+        keyWord.put("DO",EnumChar.dosy );
+        keyWord.put("WHILE",EnumChar.whilesy );
+        punctuationMark.put("+",EnumChar.plussy);
+        punctuationMark.put("-",EnumChar.minussy);
+        punctuationMark.put("*",EnumChar.multisy );
+        punctuationMark.put("/",EnumChar.divsy );
+        punctuationMark.put("(",EnumChar.lparent );
+        punctuationMark.put(")",EnumChar.rparent );
+        punctuationMark.put("=",EnumChar.eql );
+        punctuationMark.put(",",EnumChar.comma );
+        punctuationMark.put(":",EnumChar.colon );
+        punctuationMark.put(";",EnumChar.semicolon );
     }
 
-    // 判断是否是关键字，返回关键字的编码；如果不是关键字，返回22表示标识符
-    public int isKeyWord(String key){
+    // 判断是否是关键字，返回关键字 ；如果不是关键字，返回标识符
+    public EnumChar isKeyWord(String key){
         if(keyWord.containsKey(key)){
-            return (Integer) keyWord.get(key);
+            return  (EnumChar) keyWord.get(key);
         }else {
-            return EnumChar.ident.ordinal();//RETURN ident 返回22表示标识符
+            return EnumChar.ident;//RETURN ident 返回22表示标识符
         }
     }
 
     // 判断是否是标点符号，返回标点符号的编码；如果不是标点符号，返回0表示空
-    public int isPunctuationMark(String mark){
+    public EnumChar isPunctuationMark(String mark){
         if(punctuationMark.containsKey(mark)){
-            return (Integer) punctuationMark.get(mark);
+            return (EnumChar) punctuationMark.get(mark);
         }else {
-            return EnumChar.nul.ordinal();// return nul
+            return EnumChar.nul;// return nul
         }
     }
     public String[] getSymTable(){

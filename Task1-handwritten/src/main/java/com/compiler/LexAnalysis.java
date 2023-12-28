@@ -9,7 +9,7 @@ public class LexAnalysis {
     private String[] constTable = charTable.getConstTable(); // 常量表
 
     private char ch = ' '; // 当前字符
-    private int sy = 0; // 当前符号
+    private EnumChar sy = EnumChar.nul; // 当前符号
     private String strToken; // 当前标记字符串
     private String filename; // 文件名
     private char[] buffer; // 字符缓冲区
@@ -71,31 +71,31 @@ public class LexAnalysis {
             if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
                 sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
             } else {//如果不是关键字，将nul赋给sy，并调用Errors.error(0)报告标识符过长的错误。
-                sy = EnumChar.nul.ordinal();
-                Errors.error(0); // 标识符过长
+                sy = EnumChar.nul;
+                EnumErrors.error(EnumErrors.longIdent); // 标识符过长
             }
         } else if (isDigit()) { // 如果当前字符是数字，表示可能是整数。
 
-            sy = EnumChar.intcon.ordinal();//表示整数。
+            sy = EnumChar.intcon;//表示整数。
             do {//读取字符并连接到当前标记字符串中，直到不是数字为止。
                 concat();
                 getChar();
             } while (isDigit());
             if (strToken.length() > 9) {//如果当前标记字符串的长度超过9，调用Errors.error(1)报告整数过长的错误。
-                sy = EnumChar.nul.ordinal();
-                Errors.error(1); // 整数过长
+                sy = EnumChar.nul;
+                EnumErrors.error(EnumErrors.longInt); // 整数过长
             }
         } else if (ch == ':') { //  如果当前字符是冒号，表示可能是赋值符或冒号
             concat();
             getChar();
             if (ch == '=') {//读取下一个字符，如果是等号，则表示赋值符，设置sy为18。
                 concat();
-                sy = EnumChar.becomes.ordinal();
+                sy = EnumChar.becomes;
                 getChar();
             } else {//如果不是等号，表示冒号，同样设置sy为18，并调用Errors.error(7)报告赋值符应该有等号的错误。
-                sy = EnumChar.becomes.ordinal();
+                sy = EnumChar.becomes;
                 getChar();
-                Errors.error(7); // 赋值符应该有等号
+                EnumErrors.error(EnumErrors.assignEqual); // 赋值符应该有等号
             }
         } else if (ch == '<') { //如果当前字符是小于号，表示可能是小于或小于等于。
             concat();
@@ -103,27 +103,27 @@ public class LexAnalysis {
 
             if (ch == '=') {//读取下一个字符，如果是等号，则表示小于等于，
                 concat();
-                sy = EnumChar.leq.ordinal();
+                sy = EnumChar.leq ;
                 getChar();
             } else if (ch == '>') {//读取下一个字符，如果是大于号，则表示不等于
                 concat();
 
-                sy = EnumChar.neq.ordinal();
+                sy = EnumChar.neq ;
                 getChar();
-            } else sy = EnumChar.lss.ordinal();;//如果不是等号，表示小于，设置sy为10。
+            } else sy = EnumChar.lss ;;//如果不是等号，表示小于，设置sy为10。
         } else if (ch == '>') { // 大于，大于等于
             getChar();
 
             if (ch == '=') {//读取下一个字符，如果是等号，则表示大于等于
                 concat();
-                sy = EnumChar.geq.ordinal();
+                sy = EnumChar.geq ;
                 getChar();
-            } else sy = EnumChar.gtr.ordinal();;//如果不是等号，表示大于，设置sy为8。
+            } else sy = EnumChar.gtr ; //如果不是等号，表示大于，设置sy为8。
         } else { // 读取其他合法字符：+、-、*、/、:=、=、<>、>、>=、<、<=、（、）、；、，
             concat();
             sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
-            if (EnumChar.nul.ordinal()==sy) {
-                Errors.error(2); //如果符号值为nul，表示字符非法，调用Errors.error(2)报告非法字符的错误。
+            if (EnumChar.nul==sy) {
+                EnumErrors.error(EnumErrors.illegalChar); //如果符号值为nul，表示字符非法，调用Errors.error(2)报告非法字符的错误。
             }
             getChar();
         }
