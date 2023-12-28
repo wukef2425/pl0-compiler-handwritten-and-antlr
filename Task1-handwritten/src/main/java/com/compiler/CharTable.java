@@ -16,25 +16,25 @@ public class CharTable {
      * 字符表
      */
     public  CharTable(){
-        keyWord.put("PROGRAM",21);
-        keyWord.put("BEGIN",23);
-        keyWord.put("END",30);
-        keyWord.put("IF",24);
-        keyWord.put("THEN",33);
-        keyWord.put("CONST",19);
-        keyWord.put("VAR",20);
-        keyWord.put("DO",32);
-        keyWord.put("WHILE",25);
-        punctuationMark.put("+",3);
-        punctuationMark.put("-",2);
-        punctuationMark.put("*",4);
-        punctuationMark.put("/",5);
-        punctuationMark.put("(",12);
-        punctuationMark.put(")",13);
-        punctuationMark.put("=",6);
-        punctuationMark.put(",",14);
-        punctuationMark.put(":",17);
-        punctuationMark.put(";",15);
+        keyWord.put("PROGRAM",EnumChar.procsy.ordinal());
+        keyWord.put("BEGIN",EnumChar.beginsy.ordinal());
+        keyWord.put("END",EnumChar.endsy.ordinal());
+        keyWord.put("IF",EnumChar.ifsy.ordinal());
+        keyWord.put("THEN",EnumChar.thensy.ordinal());
+        keyWord.put("CONST",EnumChar.constsy.ordinal());
+        keyWord.put("VAR",EnumChar.varsy.ordinal());
+        keyWord.put("DO",EnumChar.dosy.ordinal());
+        keyWord.put("WHILE",EnumChar.whilesy.ordinal());
+        punctuationMark.put("+",EnumChar.plussy.ordinal());
+        punctuationMark.put("-",EnumChar.minussy.ordinal());
+        punctuationMark.put("*",EnumChar.multisy.ordinal());
+        punctuationMark.put("/",EnumChar.divsy.ordinal());
+        punctuationMark.put("(",EnumChar.lparent.ordinal());
+        punctuationMark.put(")",EnumChar.rparent.ordinal());
+        punctuationMark.put("=",EnumChar.eql.ordinal());
+        punctuationMark.put(",",EnumChar.comma.ordinal());
+        punctuationMark.put(":",EnumChar.colon.ordinal());
+        punctuationMark.put(";",EnumChar.semicolon.ordinal());
     }
 
     // 判断是否是关键字，返回关键字的编码；如果不是关键字，返回22表示标识符
@@ -42,7 +42,7 @@ public class CharTable {
         if(keyWord.containsKey(key)){
             return (Integer) keyWord.get(key);
         }else {
-            return 22;//RETURN ident 返回22表示标识符
+            return EnumChar.ident.ordinal();//RETURN ident 返回22表示标识符
         }
     }
 
@@ -51,7 +51,7 @@ public class CharTable {
         if(punctuationMark.containsKey(mark)){
             return (Integer) punctuationMark.get(mark);
         }else {
-            return 0;// return nul
+            return EnumChar.nul.ordinal();// return nul
         }
     }
     public String[] getSymTable(){
