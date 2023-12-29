@@ -69,10 +69,15 @@ public class LexAnalysis {
                 getChar();// 获取下一个字符
             } while (isLetter() || isDigit());
             if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
-                sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
-            } else {//如果不是关键字，将nul赋给sy，并调用Errors.error(0)报告标识符过长的错误。
-                sy = EnumChar.nul;
-                EnumErrors.error(EnumErrors.longIdent); // 标识符过长
+                if(isAllUpperCase(strToken)) {
+                    sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
+                    System.out.println("sy: " + sy);
+                } else {
+                    sy = EnumChar.ident;//如果不是关键字，将22赋给sy，表示标识符。
+                }
+            } else {
+               sy = EnumChar.nul;
+               EnumErrors.error(EnumErrors.longIdent); // 标识符过长
             }
         } else if (isDigit()) { // 如果当前字符是数字，表示可能是整数。
 
@@ -112,14 +117,18 @@ public class LexAnalysis {
                 getChar();
             } else sy = EnumChar.lss ;;//如果不是等号，表示小于，设置sy为10。
         } else if (ch == '>') { // 大于，大于等于
+            concat();
             getChar();
 
             if (ch == '=') {//读取下一个字符，如果是等号，则表示大于等于
                 concat();
                 sy = EnumChar.geq ;
                 getChar();
-            } else sy = EnumChar.gtr ; //如果不是等号，表示大于，设置sy为8。
-        } else { // 读取其他合法字符：+、-、*、/、:=、=、<>、>、>=、<、<=、（、）、；、，
+            } else sy = EnumChar.gtr;//如果不是等号，表示大于，设置sy为8。
+        } else if (ch == '\n') { //结束符
+            System.out.println("程序结束");
+            System.exit(0);
+        } else { // 读取其他合法字符
             concat();
             sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
             if (EnumChar.nul==sy) {
@@ -185,6 +194,16 @@ public class LexAnalysis {
     // 获取当前符号
     public EnumChar getType() {
         return sy;
+    }
+
+    //判断字符串中的字符是否全都是大写字母
+    public boolean isAllUpperCase(String str){
+        for(int i=0;i<str.length();i++){
+            if(!Character.isUpperCase(str.charAt(i))){
+                return false;
+            }
+        }
+        return true;
     }
 
 }

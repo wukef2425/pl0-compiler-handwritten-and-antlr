@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         String filename;
-        Scanner scanner = new Scanner("src/main/resources/demo.txt");
+        Scanner scanner = new Scanner("src/main/resources/demo1.txt");
         filename = scanner.next();
         LexAnalysis lex;
         lex = new LexAnalysis(filename);

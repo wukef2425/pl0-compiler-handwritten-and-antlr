@@ -1,5 +1,5 @@
 VAR x,y;
-BEGIN
+BRGIN
 x:=1;
 y:=2;
 WHILE x<5 DO x:=x+1;
