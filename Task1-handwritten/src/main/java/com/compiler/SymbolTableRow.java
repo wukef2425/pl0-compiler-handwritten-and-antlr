@@ -2,13 +2,13 @@ package com.compiler;
 
 public class SymbolTableRow {
     private String name ;
-    private int type ;              //标志符基本类型
+    private EnumChar type ;              //标志符基本类型
 
     public SymbolTableRow(){
 
     }
 
-    public SymbolTableRow(String name, int type){
+    public SymbolTableRow(String name, EnumChar type){
         setName(name);
         setType(type);
     }
@@ -20,11 +20,11 @@ public class SymbolTableRow {
     public void setName(String name) {this.name = name;}
 
 
-    public int getType() {
+    public EnumChar getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(EnumChar type) {
         this.type = type;
     }
 

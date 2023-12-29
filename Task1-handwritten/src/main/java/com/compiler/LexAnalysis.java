@@ -57,7 +57,7 @@ public class LexAnalysis {
      *
      * @return {@link String}
      */
-    public String nextSym() {
+    public String nextToken() {
         isNewLine = 0;// 重置isNewLine标志，表示当前不是新的一行。
         strToken = "";//清空当前标记字符串
         getBC(); // 去除空格符
@@ -183,7 +183,7 @@ public class LexAnalysis {
     }
 
     // 获取当前符号
-    public int getSy() {
+    public EnumChar getType() {
         return sy;
     }
 

@@ -12,7 +12,7 @@ public class Main {
 
         String token;
         do {
-            token = lex.nextSym();
+            token = lex.nextToken();
             System.out.println("Token: " + token);
         } while (!token.isEmpty());
     }

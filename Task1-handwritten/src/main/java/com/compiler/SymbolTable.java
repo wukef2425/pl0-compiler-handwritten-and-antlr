@@ -12,7 +12,8 @@ public class SymbolTable {
         return tablePtr == rowMax;
     }
 
-    public void enterTable(String name, int type) {
+    //记得是从index=1开始存的！
+    public void enterTable(String name, EnumChar type) {
         tablePtr++;
         table[tablePtr].setName(name);
         table[tablePtr].setType(type);
@@ -21,6 +22,8 @@ public class SymbolTable {
     public int getTablePtr() {
         return tablePtr;
     }
+
+    public SymbolTableRow getRow(int i){return table[i];}
 
     public int checkExistence(String name){
 
@@ -32,5 +35,12 @@ public class SymbolTable {
             }
         }
         return 0;
+    }
+
+    public void printTable() {
+        System.out.println("    name    type");
+        for (int i = 1; i <=tablePtr; i++) {
+            table[i].print();
+        }
     }
 }
