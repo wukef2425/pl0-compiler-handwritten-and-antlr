@@ -114,6 +114,7 @@ public class LexAnalysis {
                 getChar();
             } else sy = lss;//如果不是等号，表示小于，设置sy为10。
         } else if (ch == '>') { // 大于，大于等于
+            concat();
             getChar();
             int gtr = 8;
             if (ch == '=') {//读取下一个字符，如果是等号，则表示大于等于，设置sy为9。
@@ -122,7 +123,10 @@ public class LexAnalysis {
                 sy = geq;
                 getChar();
             } else sy = gtr;//如果不是等号，表示大于，设置sy为8。
-        }else { // 读取其他合法字符：+、-、*、/、:=、=、<>、>、>=、<、<=、（、）、；、，
+        } else if (ch == '\n') { //结束符
+            System.out.println("程序结束");
+            System.exit(0);
+        } else { // 读取其他合法字符：+、-、*、/、:=、=、<>、>、>=、<、<=、（、）、；、，
             concat();
             sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
             if (sy == nul) {
