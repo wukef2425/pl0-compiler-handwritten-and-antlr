@@ -14,8 +14,8 @@ public class ThreeAddressCodeGen {
     }
 
     public int  emit(String s){
-        code.add(s);
-        addrId++;
+        this.code.add(s);
+        this.addrId++;
 
         return addrId;
     }
@@ -24,9 +24,9 @@ public class ThreeAddressCodeGen {
          return addrId;
     }
     public int nextAddr(){
-        code.add("");
-        addrId++;
-        return addrId;
+        this.code.add("");
+        this.addrId++;
+        return this.addrId;
     }
 
     public void setAddrCode(int id,String s)
@@ -35,7 +35,8 @@ public class ThreeAddressCodeGen {
     }
 
     public void printAll() {
-        for (int i = beginAddId; i <= addrId; i++) {
+        for (int i = this.beginAddId; i <= this.addrId; i++) {
+
             System.out.println(i+"    "+code.get(i-beginAddId));
         }
     }

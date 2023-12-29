@@ -71,7 +71,7 @@ public class LexAnalysis {
             if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
                 if(isAllUpperCase(strToken)) {
                     sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
-                    System.out.println("sy: " + sy);
+                    //System.out.println("sy: " + sy);
                 } else {
                     sy = EnumChar.ident;//如果不是关键字，将22赋给sy，表示标识符。
                 }
@@ -126,8 +126,7 @@ public class LexAnalysis {
                 getChar();
             } else sy = EnumChar.gtr;//如果不是等号，表示大于，设置sy为8。
         } else if (ch == '\n') { //结束符
-            System.out.println("程序结束");
-            System.exit(0);
+            System.out.println("扫描结束");
         } else { // 读取其他合法字符
             concat();
             sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。

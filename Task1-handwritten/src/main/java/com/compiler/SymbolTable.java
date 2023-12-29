@@ -8,6 +8,12 @@ public class SymbolTable {
     private SymbolTableRow[] table = new SymbolTableRow[rowMax+1];          //rowMax行
     private int tablePtr = 0;
 
+    public SymbolTable(){
+        for (int i = 0; i <= rowMax; i++) {
+            table[i] = new SymbolTableRow("", EnumChar.nul);
+        }
+    }
+
     public boolean isFull() {
         return tablePtr == rowMax;
     }

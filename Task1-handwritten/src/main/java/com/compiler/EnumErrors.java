@@ -15,19 +15,18 @@ public enum EnumErrors {
     noEqlforConst("没有等号为常量赋值"),
     noConstDeclaration("没有常量定义式"),
 
-    noCommaSeperate("常量声明间没有逗号分隔"),
+    noCommaSeperateConst("常量声明间没有逗号分隔"),
+    noCommaSeperateVar("变量声明间没有逗号分隔"),
     noVarDeclaration("没有变量定义式"),
     constAssigenment("常量不能被赋值"),
     noBecomes("缺少赋值符号"),
     noRparent("缺少右括号"),
     illegalRelationalOperator("非法的关系运算符"),
-    noThen("if语句缺少then"),
-    noDo("while语句缺少do");
+    noThen("IF语句缺少THEN"),
 
-
-
-
-
+    noDo("WHILE语句缺少DO"),
+    exInnerFault("表达式内部有误"),
+    noEnd("复合语句缺少END");
 
 
     private final String tip;

@@ -10,6 +10,19 @@ public class Parser {
         lex.preManage();
         this.filename=filename;
     }
+
+    public void analysis(){
+        lex.nextToken();
+        procedure();
+
+        if (EnumErrors.getNum() == 0 || true) {
+            System.out.println("三地址代码：");
+            codeGen.printAll();
+            System.out.println("符号表：");
+            STable.printTable();
+        }
+
+    }
     int tempId=0;
     private ThreeAddressCodeGen codeGen=new ThreeAddressCodeGen(); //生成及存放三地址代码
     private int getNewTempId(){
@@ -31,7 +44,6 @@ public class Parser {
     public void procedure() {
         header();
         subprocedure();
-
     }
     public void header(){
         if(lex.getType()!=EnumChar.procsy){
@@ -50,17 +62,16 @@ public class Parser {
     public void subprocedure(){
         if (lex.getType() == EnumChar.constsy) {
             constDeclare();
-            lex.nextToken();
         }
 
         if (lex.getType() == EnumChar.varsy) {
             varDeclare();
-            lex.nextToken();
         }
 
         statementPart();
     }
 
+    //<常量说明>→CONST <常量定义>{，<常量定义>} ;
     private void constDeclare() {
         constDefinition();//必须有一个常量定义
         lex.nextToken();
@@ -68,19 +79,20 @@ public class Parser {
             if(lex.getType()==EnumChar.comma){
                 constDefinition();
             }else if(lex.getType()==EnumChar.semicolon){
+                lex.nextToken();
                 break;
             }else{
-                EnumErrors.error(EnumErrors.noCommaSeperate);
+                EnumErrors.error(EnumErrors.noCommaSeperateConst);
             }
-            lex.nextToken();
         }
 
     }
+    //<常量定义>→<标识符>:=<⽆符号整数>
     private void constDefinition(){
         String identname;
         String identvalue;
         identname = lex.nextToken();
-        if(lex.getType()==EnumChar.ident){
+        if(lex.getType()==EnumChar.becomes){
             enterTable(identname,EnumChar.constsy);
             lex.nextToken();
             if(lex.getType()==EnumChar.eql){
@@ -91,12 +103,14 @@ public class Parser {
                     EnumErrors.error(EnumErrors.illegalConstVal);
                 }
             }else{
-                EnumErrors.error(EnumErrors.noEqlforConst);
+                EnumErrors.error(EnumErrors.noBecomes);
             }
         }else{
             EnumErrors.error(EnumErrors.noConstDeclaration);
         }
     }
+    //<变量说明>→VAR<标识符>{，<标识符>};
+    //确保结束后lex指向下一个
     private void varDeclare()                       //变量声明处理
     {
         String identname;
@@ -118,11 +132,11 @@ public class Parser {
                     EnumErrors.error(EnumErrors.noVarDeclaration);
                 }
             }else if(lex.getType()==EnumChar.semicolon){
+                lex.nextToken();
                 break;
             }else{
-                EnumErrors.error(EnumErrors.noCommaSeperate);
+                EnumErrors.error(EnumErrors.noCommaSeperateVar);
             }
-            lex.nextToken();
         }
     }
 
@@ -138,9 +152,24 @@ public class Parser {
     private void compoundStatement(){
         lex.nextToken();
         statement();
+
+
+        while(true) {
+            if(lex.getType()==EnumChar.semicolon){
+                lex.nextToken();
+                statement();
+            }
+            else if(lex.getType()==EnumChar.endsy) {
+                lex.nextToken();
+                break;
+            }else {
+                EnumErrors.error(EnumErrors.noEnd);
+            }
+        }
     }
     //<语句>→<赋值语句> | <条件语句 >| <循环语句> | <复合语句> | <空语句>
     private void statement(){
+
         if (lex.getType() == EnumChar.ident) { //赋值语句
                 assignmentStatement();
         } else if (lex.getType() == EnumChar.ifsy) {//条件语句
@@ -162,9 +191,11 @@ public class Parser {
         if(lex.getType()==EnumChar.becomes) {
             lex.nextToken();
             String assignValue=expression();
+            codeGen.emit(identName+" "+":="+" "+assignValue);
         }else{
             EnumErrors.error(EnumErrors.noBecomes);      //缺少赋值符号
         }
+
     }
 
     //<条件语句>→IF <条件> THEN <语句>
@@ -248,6 +279,7 @@ public class Parser {
             val=tempVariable;
             op=lex.getType();
         }
+
         return val;
     }
 
@@ -260,9 +292,8 @@ public class Parser {
         ex1=expression();
         opstr= relationalOperator();
         ex2=expression();
-        String tempVariable="T"+getNewTempId();
-        codeGen.emit(tempVariable+" = "+ex1+" + "+ex2);
-        return tempVariable;
+
+        return ex1+" "+opstr+" "+ex2;
     }
     //<关系运算符>→ = | <> | < | <= | > | >=
     private String relationalOperator()
@@ -307,7 +338,6 @@ public class Parser {
         String val;
         EnumChar op;
         val=factor();
-        lex.nextToken();
         op=lex.getType();
         while(op==EnumChar.multisy || op==EnumChar.divsy) {
             lex.nextToken();
@@ -324,7 +354,7 @@ public class Parser {
         return val;
     }
 
-    //因子处理  <因⼦>→<标识符> |<常量> | (<表达式>)
+    //因子处理  <因⼦>→<标识符> |<⽆符号整数> | (<表达式>)
     private String factor()
     {
         String val="";
@@ -341,7 +371,12 @@ public class Parser {
             }else {
                 EnumErrors.error(EnumErrors.noRparent);
             }
-        }////常量的定义是？？？？？
+        }else if(type== EnumChar.intcon){
+            val=lex.getStrToken();
+            lex.nextToken();
+        }else {
+            EnumErrors.error(EnumErrors.exInnerFault);
+        }
         return val;
     }//factor end
 
