@@ -1,21 +1,39 @@
 package com.wukef.PL0;
 
+import org.antlr.v4.runtime.RuleContext;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+class MyArrayList<E> extends ArrayList<E> {
+    private int baseIndex = 100; // 基地址 100
+    @Override
+    public E set(int index, E element) {
+        return super.set(index - baseIndex, element);
+    }
+    @Override
+    public int indexOf(Object o) {
+        int internalIndex = super.indexOf(o);
+        if(internalIndex == -1) {
+            return -1;
+        } else {
+            return internalIndex + baseIndex;
+        }
+    }
+}
+
 public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     private int tempVarCount = 0;
-    private int labelCount = 0;
-    private List<String> intermediateCode = new ArrayList<>();
-    private String newLabel() {
-        return "L" + labelCount++;
-    }
+    private int currentCodeLine = 100; // 基地址为 100
+    private final String PLACEHOLDER = "???"; // 在生成跳转指令时使用占位符
+    private List<String> intermediateCode = new MyArrayList<>();
     private String newTempVar() {
         return "T" + tempVarCount++;
     }
-    public List<String> getIntermediateCode() {
-        return intermediateCode;
+    private void emit(String code) {
+        intermediateCode.add(code);
+        currentCodeLine++;
     }
     /**
      * <程序首部> → PROGRAM <标识符>
@@ -33,9 +51,9 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     public String visitVarDeclaration(pl0Parser.VarDeclarationContext ctx) {
         List<pl0Parser.IdentContext> variables = ctx.ident();
         String joinedVariableNames = variables.stream()
-                .map(identContext -> identContext.getText()) // 获取每个变量的文本
+                .map(RuleContext::getText) // 获取每个变量的文本
                 .collect(Collectors.joining(", ")); // 使用逗号和空格来连接
-        intermediateCode.add("VAR " + joinedVariableNames + ";");
+        System.out.println("VAR " + joinedVariableNames + ";");
         return null;
     }
     /**
@@ -43,9 +61,12 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitCompoundStatement(pl0Parser.CompoundStatementContext ctx) {
-        intermediateCode.add("BEGIN");
+        System.out.println("BEGIN");
         visitChildren(ctx);
-        intermediateCode.add("END");
+        intermediateCode.forEach(code -> {
+            System.out.println(intermediateCode.indexOf(code) + ": " + code);
+        });
+        System.out.println("END");
         return null;
     }
     /**
@@ -56,29 +77,33 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     public String visitAssignmentStatement(pl0Parser.AssignmentStatementContext ctx) {
         String ident = ctx.ident().getText();
         String expr = visit(ctx.expression());
-        intermediateCode.add(ident + " := " + expr);
+        emit(ident + " := " + expr);
         return null;
     }
     /**
      * <循环语句> → WHILE <条件> DO <语句>
      */
-    @Override public String visitLoopStatement(pl0Parser.LoopStatementContext ctx) {
-        // 记录条件开始的位置
-        String whileCondStart = newLabel();
-        intermediateCode.add("LABEL " + whileCondStart);
-        // 条件为真则会 Do, 也就是先判断条件, 然后去 doStart 的地方
+    @Override
+    public String visitLoopStatement(pl0Parser.LoopStatementContext ctx) {
+        // 记录循环条件开始的地址
+        int whileCondStart = currentCodeLine;
+        // 访问条件，并生成条件计算的中间代码
         String condition = visit(ctx.condition());
-        String doStart = newLabel();
-        intermediateCode.add("IF " + condition + " GOTO " + doStart);
-        // 条件不成立退出, 也就是到循环语句的外部
-        String afterWhile = newLabel();
-        intermediateCode.add("GOTO " + afterWhile);
-        // 这里是需要 DO 的语句开始的部分
-        intermediateCode.add("LABEL " + doStart);
+        // 记录跳转到循环体的地址的占位符位置
+        int gotoDoStartIndex = currentCodeLine;
+        emit("IF " + condition + " GOTO " + PLACEHOLDER);
+        // 记录跳出循环的跳转指令的占位符位置
+        int gotoAfterWhileIndex = currentCodeLine;
+        emit("GOTO " + PLACEHOLDER);
+        // 记录循环体开始的地址
+        int doStart = currentCodeLine;
+        intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
         visit(ctx.statement());
-        // 每次做完回到开始重新判断
-        intermediateCode.add("GOTO " + whileCondStart);
-        intermediateCode.add("LABEL " + afterWhile);
+        // 循环体结束后跳转回循环条件判断
+        emit("GOTO " + whileCondStart);
+        // 记录循环体结束后的地址
+        int afterWhile = currentCodeLine;
+        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         return null;
     }
     /**
@@ -87,22 +112,20 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitConditionStatement(pl0Parser.ConditionStatementContext ctx) {
-        // 条件
+        // 获取条件代码
         String condition = visit(ctx.condition());
-        // 创建两个新的标签
-        String thenLabel = newLabel(); // THEN 语句块的开始位置
-        String afterIfLabel = newLabel(); // IF 语句结束后的代码位置
-        // 生成条件为真时跳转到 THEN 语句块的中间代码
-        intermediateCode.add("IF " + condition + " GOTO " + thenLabel);
-        // 在 THEN 语句块之前添加跳转到 IF 语句之后的代码的中间代码
-        // 这样做是为了处理条件为假的情况，直接跳过 THEN 语句块
-        intermediateCode.add("GOTO " + afterIfLabel);
-        // 插入 THEN 语句块的标签
-        intermediateCode.add("LABEL " + thenLabel);
-        // 访问 THEN 语句块并生成中间代码
+        // 生成跳转到 THEN 的占位符代码
+        int thenIndex = currentCodeLine;
+        emit("IF " + condition + " GOTO " + PLACEHOLDER);
+        // 生成跳转到 afterIf 的占位符代码
+        int afterIfIndex = currentCodeLine;
+        emit("GOTO " + PLACEHOLDER);
+        // 访问 THEN 语句块,生成代码
         visit(ctx.statement());
-        // 在 THEN 语句块之后添加标签，表示 IF 语句之后的代码的开始
-        intermediateCode.add("LABEL " + afterIfLabel);
+        // 填充跳转到 thenIndex 的占位符
+        intermediateCode.set(thenIndex, "IF " + condition + " GOTO " + thenIndex);
+        // 填充跳转到 afterIfIndex 的占位符
+        intermediateCode.set(afterIfIndex, "GOTO " + afterIfIndex);
         return null;
     }
     /**
@@ -145,7 +168,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
 
             if (firstOp.equals("-")) {
                 result = newTempVar();
-                intermediateCode.add(result + " := -" + firstTerm);
+                emit(result + " := -" + firstTerm);
             } else {
                 result = firstTerm;
             }
@@ -166,7 +189,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         // 生成一个新的临时变量来存放这次操作的结果
         String tempVar = newTempVar();
         // 确保操作符正确地应用到累积结果和当前项
-        intermediateCode.add(tempVar + " := " + accumulatedResult + " " + operator + " " + currentTerm);
+        emit(tempVar + " := " + accumulatedResult + " " + operator + " " + currentTerm);
 
         return tempVar;
     }
@@ -192,7 +215,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
                 String operator = ctx.multOp(i - 1).getText(); // 获取操作符
                 String nextTerm = visit(ctx.factor(i)); // 获取下一个因子的临时变量
                 tempVar = newTempVar(); // 生成新的临时变量用于存储结果
-                intermediateCode.add(tempVar + " := " + result + " " + operator + " " + nextTerm);
+                emit(tempVar + " := " + result + " " + operator + " " + nextTerm);
                 result = tempVar; // 更新结果变量
             }
         }

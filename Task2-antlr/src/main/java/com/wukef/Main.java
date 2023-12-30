@@ -34,10 +34,5 @@ public class Main {
 
         pl0VisitorImpl visitor = new pl0VisitorImpl();
         visitor.visit(tree);
-
-        List<String> intermediateCode = visitor.getIntermediateCode();
-        for (String code : intermediateCode) {
-            System.out.println(code);
-        }
     }
 }
