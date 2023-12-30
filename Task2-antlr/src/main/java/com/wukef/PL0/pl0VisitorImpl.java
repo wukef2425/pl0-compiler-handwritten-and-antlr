@@ -95,15 +95,17 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         // 记录跳出循环的跳转指令的占位符位置
         int gotoAfterWhileIndex = currentCodeLine;
         emit("GOTO " + PLACEHOLDER);
-        // 记录循环体开始的地址
+        // 访问循环体之前，保存循环体开始的地址
         int doStart = currentCodeLine;
-        intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
+        // 访问循环体
         visit(ctx.statement());
+        // 循环体访问完成后，设置结束循环条件后的地址
+        int afterWhile = currentCodeLine;
+        // 替换占位符为正确的跳转地址
+        intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
+        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         // 循环体结束后跳转回循环条件判断
         emit("GOTO " + whileCondStart);
-        // 记录循环体结束后的地址
-        int afterWhile = currentCodeLine;
-        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         return null;
     }
     /**
@@ -120,12 +122,16 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         // 生成跳转到 afterIf 的占位符代码
         int afterIfIndex = currentCodeLine;
         emit("GOTO " + PLACEHOLDER);
+        // THEN 语句块的起始地址
+        int thenStart = currentCodeLine;
         // 访问 THEN 语句块,生成代码
         visit(ctx.statement());
-        // 填充跳转到 thenIndex 的占位符
-        intermediateCode.set(thenIndex, "IF " + condition + " GOTO " + thenIndex);
-        // 填充跳转到 afterIfIndex 的占位符
-        intermediateCode.set(afterIfIndex, "GOTO " + afterIfIndex);
+        // 填充跳转到 THEN 语句块的占位符（使用 thenStart）
+        intermediateCode.set(thenIndex, "IF " + condition + " GOTO " + thenStart);
+        // afterIf 的实际地址为当前代码行
+        int afterIf = currentCodeLine;
+        // 填充跳转到 afterIf 的占位符（使用 afterIf）
+        intermediateCode.set(afterIfIndex, "GOTO " + afterIf);
         return null;
     }
     /**
