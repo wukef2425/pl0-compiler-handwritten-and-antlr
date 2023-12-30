@@ -13,6 +13,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         CharStream cs = CharStreams.fromString("PROGRAM add\n" +
+                "CONST test1:=1,test2:=2;\n" +
                 "VAR x,y;\n" +
                 "BEGIN\n" +
                 "x:=+10*2+3;\n" +

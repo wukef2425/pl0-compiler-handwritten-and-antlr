@@ -45,6 +45,23 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         return visitChildren(ctx);
     }
     /**
+     * <常量说明> → CONST <常量定义>{,<常量定义>};
+     */
+    @Override
+    public String visitConstDeclaration(pl0Parser.ConstDeclarationContext ctx) {
+        List<pl0Parser.ConstDefinitionContext> constDefs = ctx.constDefinition();
+        String joinedConstDefs = constDefs.stream()
+                // 从RuleContext（即ConstDefinitionContext）中获取其文本表示，
+                // 对应于单个常量定义的原始字符串
+                .map(RuleContext::getText)
+                // 使用 collect 操作来终结流，将流中的元素累积成一个最终的结果
+                // Collectors.joining(", ")是一个收集器，它会在处理流的过程中
+                // 将元素之间添加一个逗号和一个空格作为分隔符，最终拼接成一个字符串
+                .collect(Collectors.joining(", "));
+        System.out.println("CONST " + joinedConstDefs + ";");
+        return null;
+    }
+    /**
      * <变量说明> → VAR <标识符>{,<标识符>};
      */
     @Override
