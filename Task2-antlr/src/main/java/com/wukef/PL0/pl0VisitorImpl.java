@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 
 public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     private int tempVarCount = 0;
-    private int labelCount = 100; // 假设基地址为 100
+    private int labelCount = 0;
     private List<String> intermediateCode = new ArrayList<>();
     private String newLabel() {
         return "L" + labelCount++;
@@ -35,7 +35,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         String joinedVariableNames = variables.stream()
                 .map(identContext -> identContext.getText()) // 获取每个变量的文本
                 .collect(Collectors.joining(", ")); // 使用逗号和空格来连接
-        System.out.println("VAR " + joinedVariableNames + ";");
+        intermediateCode.add("VAR " + joinedVariableNames + ";");
         return null;
     }
     /**
@@ -43,9 +43,9 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitCompoundStatement(pl0Parser.CompoundStatementContext ctx) {
-        System.out.println("BEGIN");
+        intermediateCode.add("BEGIN");
         visitChildren(ctx);
-        System.out.println("END");
+        intermediateCode.add("END");
         return null;
     }
     /**
@@ -58,6 +58,67 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         String expr = visit(ctx.expression());
         intermediateCode.add(ident + " := " + expr);
         return null;
+    }
+    /**
+     * <循环语句> → WHILE <条件> DO <语句>
+     */
+    @Override public String visitLoopStatement(pl0Parser.LoopStatementContext ctx) {
+        // 记录条件开始的位置
+        String whileCondStart = newLabel();
+        intermediateCode.add("LABEL " + whileCondStart);
+        // 条件为真则会 Do, 也就是先判断条件, 然后去 doStart 的地方
+        String condition = visit(ctx.condition());
+        String doStart = newLabel();
+        intermediateCode.add("IF " + condition + " GOTO " + doStart);
+        // 条件不成立退出, 也就是到循环语句的外部
+        String afterWhile = newLabel();
+        intermediateCode.add("GOTO " + afterWhile);
+        // 这里是需要 DO 的语句开始的部分
+        intermediateCode.add("LABEL " + doStart);
+        visit(ctx.statement());
+        // 每次做完回到开始重新判断
+        intermediateCode.add("GOTO " + whileCondStart);
+        intermediateCode.add("LABEL " + afterWhile);
+        return null;
+    }
+    /**
+     * <条件语句> → IF <条件> THEN <语句>
+     * 需要记录 THEN 语句的开始和结束位置来实现跳转
+     */
+    @Override
+    public String visitConditionStatement(pl0Parser.ConditionStatementContext ctx) {
+        // 条件
+        String condition = visit(ctx.condition());
+        // 创建两个新的标签
+        String thenLabel = newLabel(); // THEN 语句块的开始位置
+        String afterIfLabel = newLabel(); // IF 语句结束后的代码位置
+        // 生成条件为真时跳转到 THEN 语句块的中间代码
+        intermediateCode.add("IF " + condition + " GOTO " + thenLabel);
+        // 在 THEN 语句块之前添加跳转到 IF 语句之后的代码的中间代码
+        // 这样做是为了处理条件为假的情况，直接跳过 THEN 语句块
+        intermediateCode.add("GOTO " + afterIfLabel);
+        // 插入 THEN 语句块的标签
+        intermediateCode.add("LABEL " + thenLabel);
+        // 访问 THEN 语句块并生成中间代码
+        visit(ctx.statement());
+        // 在 THEN 语句块之后添加标签，表示 IF 语句之后的代码的开始
+        intermediateCode.add("LABEL " + afterIfLabel);
+        return null;
+    }
+    /**
+     * <条件> → <表达式> <关系运算符> <表达式>
+     */
+    @Override
+    public String visitCondition(pl0Parser.ConditionContext ctx) {
+        String condition;
+        // 得到左边的表达式存的位置
+        String lexpr = visit(ctx.expression(0));
+        // 得到右边的表达式存的位置
+        String rexpr = visit(ctx.expression(1));
+        // 获取操作符
+        String op = ctx.relationOp().getText();
+        condition = lexpr + " " + op + " " + rexpr;
+        return condition;
     }
     /**
      * <表达式> → [+|-]项 | <表达式> <加法运算符> <项>

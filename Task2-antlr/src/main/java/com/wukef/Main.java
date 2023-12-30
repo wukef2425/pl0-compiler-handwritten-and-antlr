@@ -32,9 +32,6 @@ public class Main {
         // 'program' 是顶级语法规则名
         ParseTree tree = parser.program();
 
-        // 使用 Trees.toStringTree() 打印树
-        System.out.println(Trees.toStringTree(tree, parser));
-
         pl0VisitorImpl visitor = new pl0VisitorImpl();
         visitor.visit(tree);
 
