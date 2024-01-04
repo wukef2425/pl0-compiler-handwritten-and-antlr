@@ -1,6 +1,12 @@
 package com.compiler;
 
 import java.util.ArrayList;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 public class ThreeAddressCodeGen {
     ArrayList<String> code = new ArrayList<>();
@@ -34,14 +40,23 @@ public class ThreeAddressCodeGen {
         code.set(id - beginAddId, s);
     }
 
-    public void printAll() {
-        for (int i = this.beginAddId; i <= this.addrId; i++) {
+    public void printAllToFile(String filepath) {
+        String targetFileName=filepath.substring(0, filepath.lastIndexOf('.'))+"-middle.txt";
+        Path targetPath = Paths.get(targetFileName);
+        System.out.println("输入中间代码至"+targetPath);
 
-            System.out.println(i+"    "+code.get(i-beginAddId));
+        try{
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetPath.toFile(), true));
+            for (int i = this.beginAddId; i <= this.addrId; i++) {
+
+                System.out.println(i + "    " + code.get(i - beginAddId));
+                writer.write(i + "    " + code.get(i - beginAddId));
+                writer.newLine();  // 写入一个新行
+            }
+            writer.close();
+        }catch(IOException e) {
+            e.printStackTrace();
         }
     }
 
-    public void printToFile(){
-
-    }
 }

@@ -15,9 +15,9 @@ public class Parser {
         lex.nextToken();
         procedure();
 
-        if (EnumErrors.getNum() == 0 || true) {
+        if (EnumErrors.getNum() == 0) {
             System.out.println("三地址代码：");
-            codeGen.printAll();
+            codeGen.printAllToFile(this.filename);
             System.out.println("符号表：");
             STable.printTable();
         }
@@ -28,17 +28,6 @@ public class Parser {
     private int getNewTempId(){
         tempId++;
         return tempId;
-    }
-    public boolean ParserAnalysis() {
-        lex.nextToken();
-        procedure();
-        if (EnumErrors.getNum() == 0 || true) {
-            System.out.println("三地址代码：");
-            codeGen.printAll();
-            System.out.println("符号表：");
-            STable.printTable();
-        }
-        return EnumErrors.getNum() != 0;
     }
 
     public void procedure() {

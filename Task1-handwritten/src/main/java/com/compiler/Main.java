@@ -3,9 +3,11 @@ import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
-        String filename;
-        Scanner scanner = new Scanner("src/main/resources/demo1.txt");
-        filename = scanner.next();
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请输入您的代码路径：");
+        String filepath = scanner.nextLine();
+        //"src\main\resources\demo1.txt"
+        //"src\main\resources\demo2.txt"
 
         //词法分析测试程序
 //        LexAnalysis lex;
@@ -19,7 +21,7 @@ public class Main {
 //            System.out.println("Token: " + token);
 //        } while (!token.isEmpty());
 
-        Parser p=new Parser(filename);
+        Parser p=new Parser(filepath);
         p.analysis();
 
     }
