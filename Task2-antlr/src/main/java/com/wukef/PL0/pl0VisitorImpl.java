@@ -35,6 +35,11 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         intermediateCode.add(code);
         currentCodeLine++;
     }
+    public void printIntermediateCode(){
+        intermediateCode.forEach(code -> {
+            System.out.println(intermediateCode.indexOf(code) + ": " + code);
+        });
+    }
     /**
      * <程序首部> → PROGRAM <标识符>
      */
@@ -74,19 +79,6 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         return null;
     }
     /**
-     * <复合语句> → BEGIN <语句>{; <语句>} END
-     */
-    @Override
-    public String visitCompoundStatement(pl0Parser.CompoundStatementContext ctx) {
-        System.out.println("BEGIN");
-        visitChildren(ctx);
-        intermediateCode.forEach(code -> {
-            System.out.println(intermediateCode.indexOf(code) + ": " + code);
-        });
-        System.out.println("END");
-        return null;
-    }
-    /**
      * <赋值语句> → <标识符>:=<表达式>
      * TODO 要去查符号表，还需要处理语义错误
      */
@@ -117,12 +109,13 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         // 访问循环体
         visit(ctx.statement());
         // 循环体访问完成后，设置结束循环条件后的地址
-        int afterWhile = currentCodeLine;
         // 替换占位符为正确的跳转地址
         intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
-        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         // 循环体结束后跳转回循环条件判断
         emit("GOTO " + whileCondStart);
+        // emit("GOTO " + whileCondStart);做完了才是循环西真正结束了
+        int afterWhile = currentCodeLine;
+        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         return null;
     }
     /**

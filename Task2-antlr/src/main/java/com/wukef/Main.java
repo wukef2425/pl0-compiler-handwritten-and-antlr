@@ -12,16 +12,27 @@ import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        CharStream cs = CharStreams.fromString("PROGRAM add\n" +
-                "CONST test1:=1,test2:=2;\n" +
-                "VAR x,y;\n" +
+        CharStream cs = CharStreams.fromString("PROGRAM test\n" +
+                "VAR n, sum, i, temp;\n" +
+                "\n" +
                 "BEGIN\n" +
-                "x:=+10*2+3;\n" +
-                "y:=2;\n" +
-                "WHILE x<50 DO x:=x+1;\n" +
-                "IF y>0 THEN y:=y-1;\n" +
-                "y:=y+x\n" +
-                "END\n");
+                "n := 10;\n" +
+                "sum := 0;\n" +
+                "i := 1;\n" +
+                "\n" +
+                "WHILE i <= n DO\n" +
+                "BEGIN\n" +
+                "sum := sum + i;\n" +
+                "temp := sum;\n" +
+                "\n" +
+                "IF temp = 55 THEN\n" +
+                "BEGIN\n" +
+                "temp := temp + 1;\n" +
+                "END;\n" +
+                "\n" +
+                "i := i + 1;\n" +
+                "END;\n" +
+                "END");
 //        CharStream cs = CharStreams.fromString("PROGRAM ad3d\n" +
 //                "VAR x,dgey,gy6;\n");
 //        CharStream cs = CharStreams.fromString("PROGRAM add\n" +
@@ -35,5 +46,6 @@ public class Main {
 
         pl0VisitorImpl visitor = new pl0VisitorImpl();
         visitor.visit(tree);
+        visitor.printIntermediateCode();
     }
 }
