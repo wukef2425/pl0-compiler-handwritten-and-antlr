@@ -1,0 +1,27 @@
+maxcount := 10
+a := 15
+b := 5
+sum := 0
+product := 1
+quotient := 1
+difference := 0
+counter := 0
+IF counter <= maxcount GOTO 110
+GOTO 127
+T1 := a + b
+sum := T1
+T2 := a - b
+difference := T2
+T3 := a * b
+product := T3
+IF b <> 0 GOTO 118
+GOTO 120
+T4 := a / b
+quotient := T4
+T5 := counter + 1
+counter := T5
+T6 := a + 1
+a := T6
+T7 := b + 1
+b := T7
+GOTO 108

@@ -1,0 +1,13 @@
+n := 10
+sum := 0
+i := 1
+IF i <= n GOTO 105
+GOTO 113
+T1 := sum + i
+sum := T1
+temp := sum
+IF temp = 55 GOTO 110
+GOTO 110
+T2 := i + 1
+i := T2
+GOTO 103

@@ -1,0 +1,31 @@
+maximit := 100
+num1 := 2
+num2 := 5
+count := 0
+result := 0
+IF count < maximit GOTO 107
+GOTO 131
+IF num1 > num2 GOTO 109
+GOTO 111
+T1 := num1 + num2
+result := T1
+IF num2 <= num1 GOTO 113
+GOTO 116
+T2 := num1 - num2
+T3 := result - T2
+result := T3
+IF result >= 050 GOTO 118
+GOTO 120
+T4 := result / 2
+result := T4
+IF result < 25 GOTO 122
+GOTO 124
+T5 := result * 2
+result := T5
+T6 := num1 + 1
+num1 := T6
+T7 := num2 + 1
+num2 := T7
+T8 := count + 1
+count := T8
+GOTO 105

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class pl0VisitorImpl extends pl0BaseVisitor<String> {
-    private int tempVarCount = 0;
+    private int tempVarCount = 1;
     private int currentCodeLine = 100; // 基地址为 100
     private final String PLACEHOLDER = "???"; // 在生成跳转指令时使用占位符
     private SymbolTable symbolTable = new SymbolTable();
@@ -18,16 +18,23 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         intermediateCode.add(code);
         currentCodeLine++;
     }
-    public void printResult(){
+    public void printIntermediateCode() {
         intermediateCode.forEach(code -> {
             System.out.println(intermediateCode.indexOf(code) + ": " + code);
         });
+    }
+
+    public void printSymbolTable() {
         try {
             symbolTable.checkUsage();
         } catch (Exception e) {
             symbolTable.printSymbolTable();
             System.err.println(e.getMessage());
         }
+    }
+
+    public List<String> getIntermediateCode() {
+        return intermediateCode;
     }
     /**
      * <程序首部> → PROGRAM <标识符>
@@ -45,26 +52,29 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitConstDeclaration(pl0Parser.ConstDeclarationContext ctx) {
         List<pl0Parser.ConstDefinitionContext> constDefs = ctx.constDefinition();
-        // 检查能不能声明
+        // 拼接
+        String joinedConstDefs = constDefs.stream()
+        // 从RuleContext（即ConstDefinitionContext）中获取其文本表示，
+        // 对应于单个常量定义的原始字符串
+                .map(RuleContext::getText)
+        // 使用 collect 操作来终结流，将流中的元素累积成一个最终的结果
+        // Collectors.joining(", ")是一个收集器，它会在处理流的过程中
+        // 将元素之间添加一个逗号和一个空格作为分隔符，最终拼接成一个字符串
+                .collect(Collectors.joining(", "));
+        System.out.println("CONST " + joinedConstDefs + ";");
+
         for (pl0Parser.ConstDefinitionContext constDef : constDefs) {
             String constName = constDef.ident().getText();
+            String constValue = constDef.number().getText();
             int line = constDef.getStart().getLine();
+
             try {
                 symbolTable.declare(constName, false, line);
+                emit(constName + " := " + constValue);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
         }
-        // 拼接
-        String joinedConstDefs = constDefs.stream()
-                // 从RuleContext（即ConstDefinitionContext）中获取其文本表示，
-                // 对应于单个常量定义的原始字符串
-                .map(RuleContext::getText)
-                // 使用 collect 操作来终结流，将流中的元素累积成一个最终的结果
-                // Collectors.joining(", ")是一个收集器，它会在处理流的过程中
-                // 将元素之间添加一个逗号和一个空格作为分隔符，最终拼接成一个字符串
-                .collect(Collectors.joining(", "));
-        System.out.println("CONST " + joinedConstDefs + ";");
         return null;
     }
     /**
