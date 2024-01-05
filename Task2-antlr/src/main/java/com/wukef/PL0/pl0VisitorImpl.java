@@ -136,7 +136,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
         // 循环体结束后跳转回循环条件判断
         emit("GOTO " + whileCondStart);
-        // emit("GOTO " + whileCondStart);做完了才是循环西真正结束了
+        // emit("GOTO " + whileCondStart);做完了才是循环真正结束了
         int afterWhile = currentCodeLine;
         intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         return null;
