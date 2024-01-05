@@ -4,7 +4,7 @@ package com.compiler;
 public enum EnumErrors {
     longIdent("标识符过长"),
     longInt("整数过长"),
-    illegalChar("一个非法的字符"),
+    illegalChar("一个非法的字符串"),
     assignEqual("赋值符应该有等号"),
     noProgram("没有PROGRAM关键字"),
     noProgramIdent("PROGRAM没有标识符"),

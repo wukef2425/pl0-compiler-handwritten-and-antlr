@@ -4,9 +4,8 @@ import java.io.*;
 
 public class LexAnalysis {
 
-    private CharTable charTable = new CharTable();// 词法分析表
-    private String[] symTable = charTable.getSymTable(); // 符号表
-    private String[] constTable = charTable.getConstTable(); // 常量表
+    private KeywordTable keywordTable = new KeywordTable();// 词法分析表
+
 
     private char ch = ' '; // 当前字符
     private EnumChar sy = EnumChar.nul; // 当前符号
@@ -19,13 +18,6 @@ public class LexAnalysis {
 
     // 构造函数
     public LexAnalysis(String _filename) {
-        // 初始化符号表和常量表
-        for (int i = 0; i < symTable.length; i++) {
-            symTable[i] = null;
-        }
-        for (int j = 0; j < constTable.length; j++) {
-            constTable[j] = null;
-        }
         filename = _filename;
     }
 
@@ -70,11 +62,12 @@ public class LexAnalysis {
             } while (isLetter() || isDigit());
 
             if(isAllUpperCase(strToken)) {//全是大写
-                sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
+                sy = keywordTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
             } else if(isAllLowerCase(strToken)) {//全是小写和数字
                 sy = EnumChar.ident;//表示标识符。
             }else {
                 sy = EnumChar.nul;
+                EnumErrors.error(EnumErrors.illegalChar);
             }
 
         } else if (isDigit()) { // 如果当前字符是数字，表示可能是整数。
@@ -203,12 +196,6 @@ public class LexAnalysis {
         return strToken;
     }
 
-    // 显示错误信息
-    public void showError() {
-        System.out.println();
-        System.out.print("ERROR: 在第 " + line + " 行无法识别该单词");
-        System.out.println();
-    }
 
     // 获取当前行号
     public static int getLine() {

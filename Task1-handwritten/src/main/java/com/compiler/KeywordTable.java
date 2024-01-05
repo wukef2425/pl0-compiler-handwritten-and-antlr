@@ -1,20 +1,13 @@
 package com.compiler;
 
 import java.util.HashMap;
-import java.util.Map;
 
-public class CharTable {
+public class KeywordTable {
     private HashMap keyWord = new HashMap<String,EnumChar>();
-    private int symLength=100;
-    private String[] symTable=new String[symLength];
-
-    private int conLength=100;
-    private String[] constTable=new String[conLength];
-
-    /**
+   /**
      * 字符表
      */
-    public  CharTable(){
+    public KeywordTable(){
         keyWord.put("PROGRAM",EnumChar.procsy);
         keyWord.put("BEGIN",EnumChar.beginsy);
         keyWord.put("END",EnumChar.endsy );
@@ -36,10 +29,4 @@ public class CharTable {
         }
     }
 
-    public String[] getSymTable(){
-        return symTable;
-    }
-    public String[] getConstTable(){
-        return constTable;
-    }
 }
