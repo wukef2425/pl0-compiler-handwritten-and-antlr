@@ -10,7 +10,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     private int currentCodeLine = 100; // 基地址为 100
     private final String PLACEHOLDER = "???"; // 在生成跳转指令时使用占位符
     private SymbolTable symbolTable = new SymbolTable();
-    private List<String> intermediateCode = new MyArrayList<>();
+    private MyArrayList<String> intermediateCode = new MyArrayList<>();
     private String newTempVar() {
         return "T" + tempVarCount++;
     }
@@ -20,20 +20,16 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     }
     public void printIntermediateCode() {
         intermediateCode.forEach(code -> {
-            System.out.println(intermediateCode.indexOf(code) + ": " + code);
+            System.out.println(intermediateCode.indexOf(code) + ":  " + code);
         });
     }
 
     public void printSymbolTable() {
-        try {
-            symbolTable.checkUsage();
-        } catch (Exception e) {
-            symbolTable.printSymbolTable();
-            System.err.println(e.getMessage());
-        }
+        symbolTable.printSymbolTable();
+        symbolTable.checkUsage();
     }
 
-    public List<String> getIntermediateCode() {
+    public MyArrayList<String> getIntermediateCode() {
         return intermediateCode;
     }
     /**
