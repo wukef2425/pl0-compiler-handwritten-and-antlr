@@ -1,5 +1,5 @@
 100    maxLimit := 100
-101    num1 := 15
+101    num1 := 2
 102    num2 := 5
 103    count := 0
 104    result := 0

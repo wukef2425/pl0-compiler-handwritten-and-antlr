@@ -1,0 +1,13 @@
+100    n := 10
+101    sum := 0
+102    i := 1
+103    if i <= n goto 105
+104    goto 113
+105    T1 := sum + i
+106    sum := T1
+107    temp := sum
+108    if temp = 55 goto 110
+109    goto 110
+110    T2 := i + 1
+111    i := T2
+112    goto 103

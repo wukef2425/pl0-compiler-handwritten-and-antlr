@@ -7,7 +7,7 @@ VAR
   num1, num2, count, result;
 
 BEGIN
-  num1 := 15;
+  num1 := 2;
   num2 := 5;
   count := 0;
   result := 0;

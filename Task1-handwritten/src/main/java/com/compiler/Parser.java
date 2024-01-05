@@ -85,11 +85,12 @@ public class Parser {
         identname = lex.nextToken();
         lex.nextToken();
         if(lex.getType()==EnumChar.becomes) {
-            enterTable(identname, EnumChar.constsy);
+            int p=enterTable(identname, EnumChar.constsy);
             identvalue=lex.nextToken();
 
             if (lex.getType() == EnumChar.intcon) {
                 codeGen.emit(identname + " " + ":=" + " " + identvalue);
+                STable.getRow(p).setIsAssigned();
                 lex.nextToken();
             } else {
                 EnumErrors.error(EnumErrors.illegalConstVal);
@@ -186,6 +187,7 @@ public class Parser {
             lex.nextToken();
             String assignValue=expression();
             codeGen.emit(identName+" "+":="+" "+assignValue);
+            STable.getRow(rowNum).setIsAssigned();
         }else{
             EnumErrors.error(EnumErrors.noBecomes);      //缺少赋值符号
         }
@@ -355,7 +357,10 @@ public class Parser {
         EnumChar type=lex.getType();
         if(type==EnumChar.ident) {
             val=lex.getStrToken();
-            locateTableWithChecking(val);
+            int p=locateTableWithChecking(val);
+            if(!STable.getRow(p).isAssigned()) {
+                EnumErrors.error(EnumErrors.noAssignToUse);
+            }
             lex.nextToken();
         }else if(type==EnumChar.lparent) {
             lex.nextToken();
@@ -374,15 +379,17 @@ public class Parser {
         return val;
     }//factor end
 
-    private void enterTable(String name, EnumChar type) {
+    private int enterTable(String name, EnumChar type) {
         int i;
         if(STable.isFull()){
-            EnumErrors.error(EnumErrors.symbolTableOverflow);    //符号表溢出
+            EnumErrors.error(EnumErrors.symbolTableOverflow);
+            return 0;//符号表溢出
         }else{
             if(STable.checkExistence(name)>0){
-                EnumErrors.error(EnumErrors.identiOverDefine);    //标识符重定义
+                EnumErrors.error(EnumErrors.identiOverDefine);
+                return 0;//标识符重定义
             }else{
-                STable.enterTable(name, type);
+                 return STable.enterTable(name, type);
             }
         }
     }
@@ -395,5 +402,4 @@ public class Parser {
         }
         return p;
     }
-
 }

@@ -19,6 +19,7 @@ public enum EnumErrors {
     noCommaSeperateVar("变量声明间没有逗号分隔"),
     noVarDeclaration("没有变量定义式"),
     constAssigenment("常量不能被赋值"),
+    noAssignToUse("使用的变量没有被赋值"),
     noBecomes("缺少赋值符号"),
     noRparent("缺少右括号"),
     illegalRelationalOperator("非法的关系运算符"),

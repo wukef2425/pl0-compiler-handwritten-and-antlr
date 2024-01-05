@@ -19,10 +19,11 @@ public class SymbolTable {
     }
 
     //记得是从index=1开始存的！
-    public void enterTable(String name, EnumChar type) {
+    public int enterTable(String name, EnumChar type) {
         tablePtr++;
         table[tablePtr].setName(name);
         table[tablePtr].setType(type);
+        return tablePtr;
     }
 
     public int getTablePtr() {
@@ -44,7 +45,7 @@ public class SymbolTable {
     }
 
     public void printTable() {
-        System.out.println("    name    type");
+        System.out.println("    name    type    isAssigned");
         for (int i = 1; i <=tablePtr; i++) {
             table[i].print();
         }
