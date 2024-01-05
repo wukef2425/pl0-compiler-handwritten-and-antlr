@@ -65,8 +65,8 @@ public class LexAnalysis {
                 sy = keywordTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
             } else if(isAllLowerCase(strToken)) {//全是小写和数字
                 sy = EnumChar.ident;//表示标识符。
-            }else {
-                sy = EnumChar.nul;
+            }
+            if(sy == EnumChar.nul){
                 EnumErrors.error(EnumErrors.illegalChar);
             }
 
