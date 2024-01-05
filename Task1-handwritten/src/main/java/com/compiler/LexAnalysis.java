@@ -69,11 +69,12 @@ public class LexAnalysis {
                 getChar();// 获取下一个字符
             } while (isLetter() || isDigit());
             if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
-                if(isAllUpperCase(strToken)) {
-                    sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy。
-                    //System.out.println("sy: " + sy);
-                } else {
-                    sy = EnumChar.ident;//如果不是关键字，将22赋给sy，表示标识符。
+                if(isAllUpperCase(strToken)) {//全是大写
+                    sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
+                } else if(isAllLowerCase(strToken)) {//全是小写和数字
+                    sy = EnumChar.ident;//表示标识符。
+                }else {
+                    sy = EnumChar.nul;
                 }
             } else {
                sy = EnumChar.nul;
@@ -199,6 +200,16 @@ public class LexAnalysis {
     public boolean isAllUpperCase(String str){
         for(int i=0;i<str.length();i++){
             if(!Character.isUpperCase(str.charAt(i))){
+                return false;
+            }
+        }
+        return true;
+    }
+    //判断字符串中的字符只有小写字母和数字
+    public boolean isAllLowerCase(String str){
+        for(int i=0;i<str.length();i++){
+           //如果既不是小写字母也不是数字，返回false
+            if(!Character.isLowerCase(str.charAt(i))&&!Character.isDigit(str.charAt(i))){
                 return false;
             }
         }
