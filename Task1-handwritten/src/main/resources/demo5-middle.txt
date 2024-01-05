@@ -1,0 +1,17 @@
+100    limit := 100
+101    number := 5
+102    factorial := 1
+103    counter := number
+104    if counter > 0 goto 106
+105    goto 111
+106    T1 := factorial * counter
+107    factorial := T1
+108    T2 := counter - 1
+109    counter := T2
+110    goto 104
+111    if factorial < limit goto 113
+112    goto 115
+113    T3 := number + 1
+114    number := T3
+115    T4 := number - 1
+116    number := T4

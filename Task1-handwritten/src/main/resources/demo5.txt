@@ -1,0 +1,25 @@
+PROGRAM faccomp
+
+CONST limit := 100;
+
+VAR number, factorial, counter;
+
+BEGIN
+    number := 5; 
+    factorial := 1;
+    counter := number;
+    
+    WHILE counter > 0 DO
+    BEGIN
+        factorial := factorial * counter;
+        counter := counter - 1
+    END;
+    
+    IF factorial < limit THEN
+    BEGIN
+        number := number + 1
+    END;
+    BEGIN
+        number := number - 1
+    END
+END

@@ -1,0 +1,11 @@
+PROGRAM complex
+
+CONST a := 3, b := 4, c := 5,d := 6,e := 7;
+
+VAR x, y, z;
+
+BEGIN
+    x := a + b * (c + d) - e; 
+    y := a + ((b * c) + ((d - e) * (a + b)));
+    z := (a + b) * (c - (d - (e * (b - a)) / (b + (a * (c + d / e)))))
+END
