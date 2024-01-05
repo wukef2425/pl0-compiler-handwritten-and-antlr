@@ -1,5 +1,6 @@
 package com.wukef;
 
+import com.wukef.PL0.MyArrayList;
 import com.wukef.PL0.pl0VisitorImpl;
 import com.wukef.PL0.pl0Lexer;
 import com.wukef.PL0.pl0Parser;
@@ -13,7 +14,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -30,8 +30,7 @@ public class Main {
         } else {
             inputFilePath = args[0];
         }
-        // src\main\resources\demo1.txt
-        //E:\syfuniversity\课程\编译原理\pl0-compiler-handwritten-and-antlr\Task2-antlr\src\main\resources\demo5.txt
+
         Path inputPath = Paths.get(inputFilePath);
         if (!Files.exists(inputPath) || Files.isDirectory(inputPath)) {
             System.out.println("The specified file does not exist or is a directory.");
@@ -60,14 +59,15 @@ public class Main {
         }
     }
 
-    private static void writeToFile(List<String> intermediateCode, Path inputPath) throws IOException {
+    private static void writeToFile(MyArrayList<String> intermediateCode, Path inputPath) throws IOException {
         // 生成目标文件名，会输出到输入文件的同一级
         String outputFileName = "output_" + inputPath.getFileName();
         Path outputPath = inputPath.getParent().resolve(outputFileName);
         // 把中间代码写入文件
         try (BufferedWriter writer = Files.newBufferedWriter(outputPath)) {
             for (String code : intermediateCode) {
-                writer.write(code);
+                int index = intermediateCode.indexOf(code);
+                writer.write(index + ": " + code);
                 writer.newLine();
             }
         }

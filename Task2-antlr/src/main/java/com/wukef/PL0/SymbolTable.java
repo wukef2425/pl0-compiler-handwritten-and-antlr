@@ -52,13 +52,16 @@ public class SymbolTable {
         symbol.isUsed = true;
     }
 
-    public void checkUsage() throws Exception {
+    public void checkUsage() {
+        final String ANSI_YELLOW = "\u001B[33m";
+        final String ANSI_RESET = "\u001B[0m";
+
         for (Map.Entry<String, Symbol> entry : symbols.entrySet()) {
             Symbol symbol = entry.getValue();
             if (!symbol.isUsed) {
-                throw new Exception("Semantic Error: The " + (symbol.isVar ? "variable" : "constant") +
+                System.out.println(ANSI_YELLOW + "Warning: The " + (symbol.isVar ? "variable" : "constant") +
                         " '" + symbol.name + "' declared at line " + symbol.lineDeclared +
-                        " is not used.");
+                        " is not used." + ANSI_RESET);
             }
         }
     }
