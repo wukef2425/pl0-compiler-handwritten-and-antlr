@@ -42,7 +42,7 @@ public class CharTable {
         if(keyWord.containsKey(key)){
             return  (EnumChar) keyWord.get(key);
         }else {
-            return EnumChar.ident;//RETURN ident 返回22表示标识符
+            return EnumChar.ident;
         }
     }
 

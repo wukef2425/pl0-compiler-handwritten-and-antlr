@@ -1,0 +1,54 @@
+100    maxcount := 10
+101    a := 15
+102    b := 5
+103    sum := 0
+104    product := 1
+105    quotient := 1
+106    difference := 0
+107    counter := 0
+108    if counter < maxcount goto 110
+109    goto 127
+110    T1 := a + b
+111    sum := T1
+112    T2 := a - b
+113    difference := T2
+114    T3 := a * b
+115    product := T3
+116    if b ≠ 0 goto 118
+117    goto 120
+118    T4 := a / b
+119    quotient := T4
+120    T5 := counter + 1
+121    counter := T5
+122    T6 := a + 1
+123    a := T6
+124    T7 := b + 1
+125    b := T7
+126    goto 108
+100    maxcount := 10
+101    a := 15
+102    b := 5
+103    sum := 0
+104    product := 1
+105    quotient := 1
+106    difference := 0
+107    counter := 0
+108    if counter <= maxcount goto 110
+109    goto 127
+110    T1 := a + b
+111    sum := T1
+112    T2 := a - b
+113    difference := T2
+114    T3 := a * b
+115    product := T3
+116    if b ≠ 0 goto 118
+117    goto 120
+118    T4 := a / b
+119    quotient := T4
+120    T5 := counter + 1
+121    counter := T5
+122    T6 := a + 1
+123    a := T6
+124    T7 := b + 1
+125    b := T7
+126    goto 108

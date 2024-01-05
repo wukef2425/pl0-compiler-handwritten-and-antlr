@@ -8,6 +8,8 @@ public class Main {
         String filepath = scanner.nextLine();
         //"src\main\resources\demo1.txt"
         //"src\main\resources\demo2.txt"
+        //src\main\resources\demo3.txt
+        //src\main\resources\demo4.txt
 
         //词法分析测试程序
 //        LexAnalysis lex;

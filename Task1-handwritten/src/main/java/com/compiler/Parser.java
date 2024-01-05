@@ -63,7 +63,7 @@ public class Parser {
     //<常量说明>→CONST <常量定义>{，<常量定义>} ;
     private void constDeclare() {
         constDefinition();//必须有一个常量定义
-        lex.nextToken();
+
         while(true){
             if(lex.getType()==EnumChar.comma){
                 constDefinition();
@@ -72,31 +72,33 @@ public class Parser {
                 break;
             }else{
                 EnumErrors.error(EnumErrors.noCommaSeperateConst);
+                break;
             }
         }
 
     }
     //<常量定义>→<标识符>:=<⽆符号整数>
+    //确保结束后lex指向下一个
     private void constDefinition(){
         String identname;
         String identvalue;
         identname = lex.nextToken();
-        if(lex.getType()==EnumChar.becomes){
-            enterTable(identname,EnumChar.constsy);
-            lex.nextToken();
-            if(lex.getType()==EnumChar.eql){
-                identvalue= lex.nextToken();
-                if(lex.getType()==EnumChar.intcon){
-                    codeGen.emit(identname+" "+":="+" "+identvalue);
-                }else{
-                    EnumErrors.error(EnumErrors.illegalConstVal);
-                }
-            }else{
-                EnumErrors.error(EnumErrors.noBecomes);
+        lex.nextToken();
+        if(lex.getType()==EnumChar.becomes) {
+            enterTable(identname, EnumChar.constsy);
+            identvalue=lex.nextToken();
+
+            if (lex.getType() == EnumChar.intcon) {
+                codeGen.emit(identname + " " + ":=" + " " + identvalue);
+                lex.nextToken();
+            } else {
+                EnumErrors.error(EnumErrors.illegalConstVal);
             }
-        }else{
+        }
+        else{
             EnumErrors.error(EnumErrors.noConstDeclaration);
         }
+
     }
     //<变量说明>→VAR<标识符>{，<标识符>};
     //确保结束后lex指向下一个
@@ -125,6 +127,7 @@ public class Parser {
                 break;
             }else{
                 EnumErrors.error(EnumErrors.noCommaSeperateVar);
+                break;//不然无限死循环
             }
         }
     }
@@ -152,7 +155,9 @@ public class Parser {
                 lex.nextToken();
                 break;
             }else {
+
                 EnumErrors.error(EnumErrors.noEnd);
+                break;//不然无限死循环
             }
         }
     }
@@ -167,7 +172,7 @@ public class Parser {
                  whileStatement();
         }else if(lex.getType()==EnumChar.beginsy){// <复合语句>
             compoundStatement();
-        }
+        }//也可以是空语句
     }
     //<赋值语句>→<标识符>:=<表达式>
     private void assignmentStatement() {
@@ -333,7 +338,7 @@ public class Parser {
             String val1=factor();
             String tempVariable="T"+getNewTempId();
             if (op == EnumChar.multisy) {
-                codeGen.emit(tempVariable+" := "+val+" *" +val1);
+                codeGen.emit(tempVariable+" := "+val+" * " +val1);
             } else if (op ==EnumChar.divsy) {
                 codeGen.emit(tempVariable+" := "+val+" / "+val1);
             }

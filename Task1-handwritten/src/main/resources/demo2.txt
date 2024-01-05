@@ -13,7 +13,6 @@ BEGIN
 
     IF temp = 55 THEN
     BEGIN
-      temp := temp + 1;
     END;
 
     i := i + 1;

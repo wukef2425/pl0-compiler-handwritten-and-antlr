@@ -46,7 +46,7 @@ public class ThreeAddressCodeGen {
         System.out.println("输入中间代码至"+targetPath);
 
         try{
-            BufferedWriter writer = new BufferedWriter(new FileWriter(targetPath.toFile(), true));
+            BufferedWriter writer = new BufferedWriter(new FileWriter(targetPath.toFile(), false));
             for (int i = this.beginAddId; i <= this.addrId; i++) {
 
                 System.out.println(i + "    " + code.get(i - beginAddId));
