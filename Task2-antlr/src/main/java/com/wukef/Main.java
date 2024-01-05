@@ -30,7 +30,8 @@ public class Main {
         } else {
             inputFilePath = args[0];
         }
-
+        // src\main\resources\demo1.txt
+        //E:\syfuniversity\课程\编译原理\pl0-compiler-handwritten-and-antlr\Task2-antlr\src\main\resources\demo5.txt
         Path inputPath = Paths.get(inputFilePath);
         if (!Files.exists(inputPath) || Files.isDirectory(inputPath)) {
             System.out.println("The specified file does not exist or is a directory.");

@@ -1,0 +1,38 @@
+maxlevel := 10
+maxcount := 5
+level1 := 0
+IF level1 < maxlevel GOTO 105
+GOTO 138
+count1 := 0
+IF count1 < maxcount GOTO 108
+GOTO 135
+level2 := 0
+IF level2 < maxlevel GOTO 111
+GOTO 132
+count2 := 0
+IF count2 < maxcount GOTO 114
+GOTO 129
+T1 := count2 * level2
+IF T1 > 10 GOTO 117
+GOTO 120
+T2 := count2 * level2
+T3 := T2 + result1
+result1 := T3
+T4 := count2 + level2
+IF T4 <= 20 GOTO 123
+GOTO 126
+T5 := count2 + level2
+T6 := T5 - result2
+result2 := T6
+T7 := count2 + 1
+count2 := T7
+GOTO 112
+T8 := level2 + 1
+level2 := T8
+GOTO 109
+T9 := count1 + 1
+count1 := T9
+GOTO 106
+T10 := level1 + 1
+level1 := T10
+GOTO 103
