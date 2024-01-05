@@ -1,5 +1,6 @@
 package com.wukef;
 
+import com.wukef.PL0.SymbolTable;
 import com.wukef.PL0.pl0VisitorImpl;
 import com.wukef.PL0.pl0Lexer;
 import com.wukef.PL0.pl0Parser;
@@ -13,7 +14,7 @@ import java.util.List;
 public class Main {
     public static void main(String[] args) {
         CharStream cs = CharStreams.fromString("PROGRAM test\n" +
-                "VAR n, sum, i, temp;\n" +
+                "VAR n, sum, i, temp, notused;\n" +
                 "\n" +
                 "BEGIN\n" +
                 "n := 10;\n" +
@@ -46,6 +47,6 @@ public class Main {
 
         pl0VisitorImpl visitor = new pl0VisitorImpl();
         visitor.visit(tree);
-        visitor.printIntermediateCode();
+        visitor.printResult();
     }
 }

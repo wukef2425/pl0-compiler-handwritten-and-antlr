@@ -2,31 +2,14 @@ package com.wukef.PL0;
 
 import org.antlr.v4.runtime.RuleContext;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
-class MyArrayList<E> extends ArrayList<E> {
-    private int baseIndex = 100; // 基地址 100
-    @Override
-    public E set(int index, E element) {
-        return super.set(index - baseIndex, element);
-    }
-    @Override
-    public int indexOf(Object o) {
-        int internalIndex = super.indexOf(o);
-        if(internalIndex == -1) {
-            return -1;
-        } else {
-            return internalIndex + baseIndex;
-        }
-    }
-}
 
 public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     private int tempVarCount = 0;
     private int currentCodeLine = 100; // 基地址为 100
     private final String PLACEHOLDER = "???"; // 在生成跳转指令时使用占位符
+    private SymbolTable symbolTable = new SymbolTable();
     private List<String> intermediateCode = new MyArrayList<>();
     private String newTempVar() {
         return "T" + tempVarCount++;
@@ -35,10 +18,16 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         intermediateCode.add(code);
         currentCodeLine++;
     }
-    public void printIntermediateCode(){
+    public void printResult(){
         intermediateCode.forEach(code -> {
             System.out.println(intermediateCode.indexOf(code) + ": " + code);
         });
+        try {
+            symbolTable.checkUsage();
+        } catch (Exception e) {
+            symbolTable.printSymbolTable();
+            System.err.println(e.getMessage());
+        }
     }
     /**
      * <程序首部> → PROGRAM <标识符>
@@ -47,7 +36,8 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     public String visitProgramHeader(pl0Parser.ProgramHeaderContext ctx) {
         String programName = ctx.ident().getText();
         System.out.println("PROGRAM " + programName);
-        return visitChildren(ctx);
+        visitChildren(ctx);
+        return null;
     }
     /**
      * <常量说明> → CONST <常量定义>{,<常量定义>};
@@ -55,6 +45,17 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitConstDeclaration(pl0Parser.ConstDeclarationContext ctx) {
         List<pl0Parser.ConstDefinitionContext> constDefs = ctx.constDefinition();
+        // 检查能不能声明
+        for (pl0Parser.ConstDefinitionContext constDef : constDefs) {
+            String constName = constDef.ident().getText();
+            int line = constDef.getStart().getLine();
+            try {
+                symbolTable.declare(constName, false, line);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        // 拼接
         String joinedConstDefs = constDefs.stream()
                 // 从RuleContext（即ConstDefinitionContext）中获取其文本表示，
                 // 对应于单个常量定义的原始字符串
@@ -72,6 +73,17 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitVarDeclaration(pl0Parser.VarDeclarationContext ctx) {
         List<pl0Parser.IdentContext> variables = ctx.ident();
+        // 检查能不能声明
+        for (pl0Parser.IdentContext variable : variables) {
+            String varName = variable.getText();
+            int line = variable.getStart().getLine();
+            try {
+                symbolTable.declare(varName, true, line);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        // 拼接
         String joinedVariableNames = variables.stream()
                 .map(RuleContext::getText) // 获取每个变量的文本
                 .collect(Collectors.joining(", ")); // 使用逗号和空格来连接
@@ -80,12 +92,17 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     }
     /**
      * <赋值语句> → <标识符>:=<表达式>
-     * TODO 要去查符号表，还需要处理语义错误
      */
     @Override
     public String visitAssignmentStatement(pl0Parser.AssignmentStatementContext ctx) {
         String ident = ctx.ident().getText();
         String expr = visit(ctx.expression());
+        int line = ctx.getStart().getLine();
+        try {
+            symbolTable.assign(ident, line); // 标记为已赋值
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
         emit(ident + " := " + expr);
         return null;
     }
@@ -215,8 +232,8 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitTerm(pl0Parser.TermContext ctx) {
-        String result = null;
-        String tempVar = null;
+        String result;
+        String tempVar;
 
         // 如果只有一个因子
         if (ctx.factor().size() == 1) {
@@ -243,8 +260,14 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitFactor(pl0Parser.FactorContext ctx) {
         if (ctx.ident() != null) {
-            // 处理标识符
-            return visit(ctx.ident());
+            String ident = visit(ctx.ident());
+            int line = ctx.getStart().getLine();
+            try {
+                symbolTable.use(ident, line); // 标记为已使用
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+            return ident;
         } else if (ctx.number() != null) {
             // 处理无符号整数
             return visit(ctx.number());
@@ -271,7 +294,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitIdent(pl0Parser.IdentContext ctx) {
-        // 这里暂时返回变量名
+        // 这里返回变量名
         return ctx.getText();
     }
 }
