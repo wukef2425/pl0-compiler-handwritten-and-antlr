@@ -1,7 +1,7 @@
-PROGRAM SampleCalc
+PROGRAM samplecalc
 
 CONST
-  maxLimit := 100;
+  maxlimit := 100;
 
 VAR
   num1, num2, count, result;
@@ -12,7 +12,7 @@ BEGIN
   count := 0;
   result := 0;
 
-  WHILE count < maxLimit DO
+  WHILE count < maxlimit DO
   BEGIN
     IF num1 > num2 THEN
     BEGIN

@@ -1,9 +1,9 @@
-100    maxLimit := 100
+100    maxlimit := 100
 101    num1 := 2
 102    num2 := 5
 103    count := 0
 104    result := 0
-105    if count < maxLimit goto 107
+105    if count < maxlimit goto 107
 106    goto 131
 107    if num1 > num2 goto 109
 108    goto 111
