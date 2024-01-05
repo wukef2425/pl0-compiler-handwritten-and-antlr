@@ -3,7 +3,7 @@ CONST
 maxcount := 10;
 
 VAR
-a, b, sum, product, quotient, difference, counter;
+a, b, sum, product, quotient, difference, counter,t;
 BEGIN
   a := 15;
   b := 5;

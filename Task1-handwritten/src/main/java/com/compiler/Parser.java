@@ -57,7 +57,7 @@ public class Parser {
             varDeclare();
         }
 
-        statementPart();
+        statement();
     }
 
     //<常量说明>→CONST <常量定义>{，<常量定义>} ;
@@ -133,14 +133,6 @@ public class Parser {
         }
     }
 
-    //<语句部分>→<语句> | <复合语句>
-    private void statementPart(){
-        if (lex.getType() == EnumChar.beginsy) {
-            compoundStatement();
-        } else {
-            statement();
-        }
-    }
     //<复合语句>→BEGIN <语句>{；<语句>} END
     private void compoundStatement(){
         lex.nextToken();
