@@ -68,18 +68,15 @@ public class LexAnalysis {
                 concat();// 连接字符到当前标记字符串
                 getChar();// 获取下一个字符
             } while (isLetter() || isDigit());
-            if (strToken.length() < 14) { //检查当前标记字符串的长度，如果小于14，表示可能是标识符或关键字。
-                if(isAllUpperCase(strToken)) {//全是大写
-                    sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
-                } else if(isAllLowerCase(strToken)) {//全是小写和数字
-                    sy = EnumChar.ident;//表示标识符。
-                }else {
-                    sy = EnumChar.nul;
-                }
-            } else {
-               sy = EnumChar.nul;
-               EnumErrors.error(EnumErrors.longIdent); // 标识符过长
+
+            if(isAllUpperCase(strToken)) {//全是大写
+                sy = charTable.isKeyWord(strToken);// 判断当前标记是否是关键字。如果是关键字，将对应的符号值赋给sy,否则也不是标识符，将sy置为nul。
+            } else if(isAllLowerCase(strToken)) {//全是小写和数字
+                sy = EnumChar.ident;//表示标识符。
+            }else {
+                sy = EnumChar.nul;
             }
+
         } else if (isDigit()) { // 如果当前字符是数字，表示可能是整数。
 
             sy = EnumChar.intcon;//表示整数。
@@ -87,10 +84,7 @@ public class LexAnalysis {
                 concat();
                 getChar();
             } while (isDigit());
-            if (strToken.length() > 9) {//如果当前标记字符串的长度超过9，调用Errors.error(1)报告整数过长的错误。
-                sy = EnumChar.nul;
-                EnumErrors.error(EnumErrors.longInt); // 整数过长
-            }
+
         } else if (ch == ':') { //  如果当前字符是冒号，表示可能是赋值符或冒号
             concat();
             getChar();
