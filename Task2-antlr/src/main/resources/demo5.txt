@@ -1,0 +1,38 @@
+PROGRAM demo5
+CONST
+  maxlevel := 10,
+  maxcount := 5;
+
+VAR
+  level1, level2, count1, count2, result1, result2;
+
+BEGIN
+  level1 := 0;
+  WHILE level1 < maxlevel DO
+  BEGIN
+    count1 := 0;
+    WHILE count1 < maxcount DO
+    BEGIN
+      level2 := 0;
+      WHILE level2 < maxlevel DO
+      BEGIN
+        count2 := 0;
+        WHILE count2 < maxcount DO
+        BEGIN
+          IF count2 * level2 > 10 THEN
+          BEGIN
+            result1 := count2 * level2 + result1;
+          END;
+          IF count2 + level2 <= 20 THEN
+          BEGIN
+            result2 := count2 + level2 - result2;
+          END;
+          count2 := count2 + 1;
+        END;
+        level2 := level2 + 1;
+      END;
+      count1 := count1 + 1;
+    END;
+    level1 := level1 + 1;
+  END;
+END

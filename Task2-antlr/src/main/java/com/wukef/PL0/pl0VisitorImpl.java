@@ -1,20 +1,35 @@
 package com.wukef.PL0;
 
-import java.util.ArrayList;
+import org.antlr.v4.runtime.RuleContext;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class pl0VisitorImpl extends pl0BaseVisitor<String> {
-    private int tempVarCount = 0;
-    private int labelCount = 100; // 假设基地址为 100
-    private List<String> intermediateCode = new ArrayList<>();
-    private String newLabel() {
-        return "L" + labelCount++;
-    }
+    private int tempVarCount = 1;
+    private int currentCodeLine = 100; // 基地址为 100
+    private final String PLACEHOLDER = "???"; // 在生成跳转指令时使用占位符
+    private SymbolTable symbolTable = new SymbolTable();
+    private MyArrayList<String> intermediateCode = new MyArrayList<>();
     private String newTempVar() {
         return "T" + tempVarCount++;
     }
-    public List<String> getIntermediateCode() {
+    private void emit(String code) {
+        intermediateCode.add(code);
+        currentCodeLine++;
+    }
+    public void printIntermediateCode() {
+        intermediateCode.forEach(code -> {
+            System.out.println(intermediateCode.indexOf(code) + ":  " + code);
+        });
+    }
+
+    public void printSymbolTable() {
+        symbolTable.printSymbolTable();
+        symbolTable.checkUsage();
+    }
+
+    public MyArrayList<String> getIntermediateCode() {
         return intermediateCode;
     }
     /**
@@ -24,7 +39,39 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     public String visitProgramHeader(pl0Parser.ProgramHeaderContext ctx) {
         String programName = ctx.ident().getText();
         System.out.println("PROGRAM " + programName);
-        return visitChildren(ctx);
+        visitChildren(ctx);
+        return null;
+    }
+    /**
+     * <常量说明> → CONST <常量定义>{,<常量定义>};
+     */
+    @Override
+    public String visitConstDeclaration(pl0Parser.ConstDeclarationContext ctx) {
+        List<pl0Parser.ConstDefinitionContext> constDefs = ctx.constDefinition();
+        // 拼接
+        String joinedConstDefs = constDefs.stream()
+        // 从RuleContext（即ConstDefinitionContext）中获取其文本表示，
+        // 对应于单个常量定义的原始字符串
+                .map(RuleContext::getText)
+        // 使用 collect 操作来终结流，将流中的元素累积成一个最终的结果
+        // Collectors.joining(", ")是一个收集器，它会在处理流的过程中
+        // 将元素之间添加一个逗号和一个空格作为分隔符，最终拼接成一个字符串
+                .collect(Collectors.joining(", "));
+        System.out.println("CONST " + joinedConstDefs + ";");
+
+        for (pl0Parser.ConstDefinitionContext constDef : constDefs) {
+            String constName = constDef.ident().getText();
+            String constValue = constDef.number().getText();
+            int line = constDef.getStart().getLine();
+
+            try {
+                symbolTable.declare(constName, false, line);
+                emit(constName + " := " + constValue);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        return null;
     }
     /**
      * <变量说明> → VAR <标识符>{,<标识符>};
@@ -32,32 +79,108 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitVarDeclaration(pl0Parser.VarDeclarationContext ctx) {
         List<pl0Parser.IdentContext> variables = ctx.ident();
+        // 检查能不能声明
+        for (pl0Parser.IdentContext variable : variables) {
+            String varName = variable.getText();
+            int line = variable.getStart().getLine();
+            try {
+                symbolTable.declare(varName, true, line);
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+        }
+        // 拼接
         String joinedVariableNames = variables.stream()
-                .map(identContext -> identContext.getText()) // 获取每个变量的文本
+                .map(RuleContext::getText) // 获取每个变量的文本
                 .collect(Collectors.joining(", ")); // 使用逗号和空格来连接
         System.out.println("VAR " + joinedVariableNames + ";");
         return null;
     }
     /**
-     * <复合语句> → BEGIN <语句>{; <语句>} END
-     */
-    @Override
-    public String visitCompoundStatement(pl0Parser.CompoundStatementContext ctx) {
-        System.out.println("BEGIN");
-        visitChildren(ctx);
-        System.out.println("END");
-        return null;
-    }
-    /**
      * <赋值语句> → <标识符>:=<表达式>
-     * TODO 要去查符号表，还需要处理语义错误
      */
     @Override
     public String visitAssignmentStatement(pl0Parser.AssignmentStatementContext ctx) {
         String ident = ctx.ident().getText();
         String expr = visit(ctx.expression());
-        intermediateCode.add(ident + " := " + expr);
+        int line = ctx.getStart().getLine();
+        try {
+            symbolTable.assign(ident, line); // 标记为已赋值
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+        emit(ident + " := " + expr);
         return null;
+    }
+    /**
+     * <循环语句> → WHILE <条件> DO <语句>
+     */
+    @Override
+    public String visitLoopStatement(pl0Parser.LoopStatementContext ctx) {
+        // 记录循环条件开始的地址
+        int whileCondStart = currentCodeLine;
+        // 访问条件，并生成条件计算的中间代码
+        String condition = visit(ctx.condition());
+        // 记录跳转到循环体的地址的占位符位置
+        int gotoDoStartIndex = currentCodeLine;
+        emit("IF " + condition + " GOTO " + PLACEHOLDER);
+        // 记录跳出循环的跳转指令的占位符位置
+        int gotoAfterWhileIndex = currentCodeLine;
+        emit("GOTO " + PLACEHOLDER);
+        // 访问循环体之前，保存循环体开始的地址
+        int doStart = currentCodeLine;
+        // 访问循环体
+        visit(ctx.statement());
+        // 循环体访问完成后，设置结束循环条件后的地址
+        // 替换占位符为正确的跳转地址
+        intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
+        // 循环体结束后跳转回循环条件判断
+        emit("GOTO " + whileCondStart);
+        // emit("GOTO " + whileCondStart);做完了才是循环西真正结束了
+        int afterWhile = currentCodeLine;
+        intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
+        return null;
+    }
+    /**
+     * <条件语句> → IF <条件> THEN <语句>
+     * 需要记录 THEN 语句的开始和结束位置来实现跳转
+     */
+    @Override
+    public String visitConditionStatement(pl0Parser.ConditionStatementContext ctx) {
+        // 获取条件代码
+        String condition = visit(ctx.condition());
+        // 生成跳转到 THEN 的占位符代码
+        int thenIndex = currentCodeLine;
+        emit("IF " + condition + " GOTO " + PLACEHOLDER);
+        // 生成跳转到 afterIf 的占位符代码
+        int afterIfIndex = currentCodeLine;
+        emit("GOTO " + PLACEHOLDER);
+        // THEN 语句块的起始地址
+        int thenStart = currentCodeLine;
+        // 访问 THEN 语句块,生成代码
+        visit(ctx.statement());
+        // 填充跳转到 THEN 语句块的占位符（使用 thenStart）
+        intermediateCode.set(thenIndex, "IF " + condition + " GOTO " + thenStart);
+        // afterIf 的实际地址为当前代码行
+        int afterIf = currentCodeLine;
+        // 填充跳转到 afterIf 的占位符（使用 afterIf）
+        intermediateCode.set(afterIfIndex, "GOTO " + afterIf);
+        return null;
+    }
+    /**
+     * <条件> → <表达式> <关系运算符> <表达式>
+     */
+    @Override
+    public String visitCondition(pl0Parser.ConditionContext ctx) {
+        String condition;
+        // 得到左边的表达式存的位置
+        String lexpr = visit(ctx.expression(0));
+        // 得到右边的表达式存的位置
+        String rexpr = visit(ctx.expression(1));
+        // 获取操作符
+        String op = ctx.relationOp().getText();
+        condition = lexpr + " " + op + " " + rexpr;
+        return condition;
     }
     /**
      * <表达式> → [+|-]项 | <表达式> <加法运算符> <项>
@@ -84,7 +207,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
 
             if (firstOp.equals("-")) {
                 result = newTempVar();
-                intermediateCode.add(result + " := -" + firstTerm);
+                emit(result + " := -" + firstTerm);
             } else {
                 result = firstTerm;
             }
@@ -105,7 +228,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         // 生成一个新的临时变量来存放这次操作的结果
         String tempVar = newTempVar();
         // 确保操作符正确地应用到累积结果和当前项
-        intermediateCode.add(tempVar + " := " + accumulatedResult + " " + operator + " " + currentTerm);
+        emit(tempVar + " := " + accumulatedResult + " " + operator + " " + currentTerm);
 
         return tempVar;
     }
@@ -115,8 +238,8 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitTerm(pl0Parser.TermContext ctx) {
-        String result = null;
-        String tempVar = null;
+        String result;
+        String tempVar;
 
         // 如果只有一个因子
         if (ctx.factor().size() == 1) {
@@ -131,7 +254,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
                 String operator = ctx.multOp(i - 1).getText(); // 获取操作符
                 String nextTerm = visit(ctx.factor(i)); // 获取下一个因子的临时变量
                 tempVar = newTempVar(); // 生成新的临时变量用于存储结果
-                intermediateCode.add(tempVar + " := " + result + " " + operator + " " + nextTerm);
+                emit(tempVar + " := " + result + " " + operator + " " + nextTerm);
                 result = tempVar; // 更新结果变量
             }
         }
@@ -143,8 +266,14 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
     @Override
     public String visitFactor(pl0Parser.FactorContext ctx) {
         if (ctx.ident() != null) {
-            // 处理标识符
-            return visit(ctx.ident());
+            String ident = visit(ctx.ident());
+            int line = ctx.getStart().getLine();
+            try {
+                symbolTable.use(ident, line); // 标记为已使用
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
+            return ident;
         } else if (ctx.number() != null) {
             // 处理无符号整数
             return visit(ctx.number());
@@ -171,7 +300,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
      */
     @Override
     public String visitIdent(pl0Parser.IdentContext ctx) {
-        // 这里暂时返回变量名
+        // 这里返回变量名
         return ctx.getText();
     }
 }

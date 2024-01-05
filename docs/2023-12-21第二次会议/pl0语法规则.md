@@ -2,11 +2,11 @@
 
 1. **<程序>→<程序首部> <分程序>**
    - 这条规则表明一个程序由两部分组成：程序首部和分程序。
-   - 例：`PROGRAM Example; VAR x, y; BEGIN x := 4; y := x + 2; END`
+   - 例：`PROGRAM example VAR x, y; BEGIN x := 4; y := x + 2; END`
 
 2. **<程序首部>→PROGRAM <标识符>**
    - 程序首部开始于关键字`PROGRAM`后跟一个标识符，通常是程序的名字。
-   - 例：`PROGRAM Example`
+   - 例：`PROGRAM example`
 
 3. **<分程序>→[<常量说明>][<变量说明>]<语句>**
    - 分程序可以包含可选的常量说明、可选的变量说明，后跟一个语句。

@@ -1,0 +1,38 @@
+100: maxlevel := 10
+101: maxcount := 5
+102: level1 := 0
+103: IF level1 < maxlevel GOTO 105
+104: GOTO 138
+105: count1 := 0
+106: IF count1 < maxcount GOTO 108
+107: GOTO 135
+108: level2 := 0
+109: IF level2 < maxlevel GOTO 111
+110: GOTO 132
+111: count2 := 0
+112: IF count2 < maxcount GOTO 114
+113: GOTO 129
+114: T1 := count2 * level2
+115: IF T1 > 10 GOTO 117
+116: GOTO 120
+117: T2 := count2 * level2
+118: T3 := T2 + result1
+119: result1 := T3
+120: T4 := count2 + level2
+121: IF T4 <= 20 GOTO 123
+122: GOTO 126
+123: T5 := count2 + level2
+124: T6 := T5 - result2
+125: result2 := T6
+126: T7 := count2 + 1
+127: count2 := T7
+128: GOTO 112
+129: T8 := level2 + 1
+130: level2 := T8
+131: GOTO 109
+132: T9 := count1 + 1
+133: count1 := T9
+134: GOTO 106
+135: T10 := level1 + 1
+136: level1 := T10
+137: GOTO 103

@@ -1,0 +1,13 @@
+100: n := 10
+101: sum := 0
+102: i := 1
+103: IF i <= n GOTO 105
+104: GOTO 113
+105: T1 := sum + i
+106: sum := T1
+107: temp := sum
+108: IF temp = 55 GOTO 110
+109: GOTO 110
+110: T2 := i + 1
+111: i := T2
+112: GOTO 103

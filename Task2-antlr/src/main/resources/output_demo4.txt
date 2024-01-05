@@ -1,0 +1,31 @@
+100: maximit := 100
+101: num1 := 2
+102: num2 := 5
+103: count := 0
+104: result := 0
+105: IF count < maximit GOTO 107
+106: GOTO 131
+107: IF num1 > num2 GOTO 109
+108: GOTO 111
+109: T1 := num1 + num2
+110: result := T1
+111: IF num2 <= num1 GOTO 113
+112: GOTO 116
+113: T2 := num1 - num2
+114: T3 := result - T2
+115: result := T3
+116: IF result >= 050 GOTO 118
+117: GOTO 120
+118: T4 := result / 2
+119: result := T4
+120: IF result < 25 GOTO 122
+121: GOTO 124
+122: T5 := result * 2
+123: result := T5
+124: T6 := num1 + 1
+125: num1 := T6
+126: T7 := num2 + 1
+127: num2 := T7
+128: T8 := count + 1
+129: count := T8
+130: GOTO 105
