@@ -1,0 +1,33 @@
+PROGRAM test
+CONST
+maxcount := 10;
+
+VAR
+a, b, sum, product, quotient, difference, counter;
+BEGIN
+  a := 15;
+  b := 5;
+  sum := 0;
+  product := 1;
+  quotient := 1;
+  difference := 0;
+  counter := 0;
+
+  WHILE counter <= maxcount DO
+  BEGIN
+    sum := a + b;
+    difference := a - b;
+    product := a * b;
+
+    IF b <> 0 THEN
+    BEGIN
+      quotient := a / b
+    END;
+
+    counter := counter + 1;
+
+    a := a + 1;
+    b := b + 1
+  END
+END
+

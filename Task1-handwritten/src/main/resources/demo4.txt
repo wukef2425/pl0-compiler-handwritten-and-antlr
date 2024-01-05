@@ -1,0 +1,41 @@
+PROGRAM samplecalc
+
+CONST
+  maxlimit := 100;
+
+VAR
+  num1, num2, count, result;
+
+BEGIN
+  num1 := 2;
+  num2 := 5;
+  count := 0;
+  result := 0;
+
+  WHILE count < maxlimit DO
+  BEGIN
+    IF num1 > num2 THEN
+    BEGIN
+      result := num1 + num2
+    END;
+
+    IF num2 <= num1 THEN
+    BEGIN
+      result := result - (num1 - num2)
+    END;
+
+    IF result >= 050 THEN
+    BEGIN
+      result := result / 2;
+    END;
+
+    IF result < 25 THEN
+    BEGIN
+      result := result * 2
+    END;
+
+    num1 := num1 + 1;
+    num2 := num2 + 1;
+    count := count + 1
+  END
+END
