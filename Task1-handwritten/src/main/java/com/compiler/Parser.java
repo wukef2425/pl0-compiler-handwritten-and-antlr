@@ -46,9 +46,11 @@ public class Parser {
         }else {
             lex.nextToken();
         }
-    }
 
+    }
+//<分程序>→[<常量说明>][<变量说明>]<语句>
     public void subprocedure(){
+
         if (lex.getType() == EnumChar.constsy) {
             constDeclare();
         }

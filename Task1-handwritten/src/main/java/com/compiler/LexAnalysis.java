@@ -141,8 +141,10 @@ public class LexAnalysis {
             getChar();
         }else if (ch == '\n') { //结束符
             System.out.println("扫描结束");
+            sy=EnumChar.nul;//扫描结束要让此时类型为NULL
         }else{
             EnumErrors.error(EnumErrors.illegalChar);
+            sy=EnumChar.nul;//错了也是此时类型为NULL
             getChar();
         }
 //        } else { // 读取其他合法字符
