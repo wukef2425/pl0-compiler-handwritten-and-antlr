@@ -53,7 +53,7 @@ public class LexAnalysis {
     }
 
     /**
-     * 获取下一个符号
+     * 获取下一个符号DFA process
      *
      * @return {@link String}
      */
@@ -85,19 +85,33 @@ public class LexAnalysis {
                 getChar();
             } while (isDigit());
 
-        } else if (ch == ':') { //  如果当前字符是冒号，表示可能是赋值符或冒号
+        } else if (ch=='+'){
+            sy=EnumChar.plussy;
+            getChar();
+        }else if (ch=='-'){
+            sy=EnumChar.minussy;
+            getChar();
+        }else if (ch=='*'){
+            sy=EnumChar.multisy;
+            getChar();
+        }else if (ch=='/'){
+            sy=EnumChar.divsy;
+            getChar();
+        }else if (ch == ':') { //  如果当前字符是冒号，表示可能是赋值符
             concat();
             getChar();
-            if (ch == '=') {//读取下一个字符，如果是等号，则表示赋值符，设置sy为18。
+            if (ch == '=') {// 。
                 concat();
                 sy = EnumChar.becomes;
                 getChar();
-            } else {//如果不是等号，表示冒号，同样设置sy为18，并调用Errors.error(7)报告赋值符应该有等号的错误。
-                sy = EnumChar.becomes;
+            } else {//如果不是等号，表示冒号，没有这个符号，猜测用户是想写赋值符
                 getChar();
                 EnumErrors.error(EnumErrors.assignEqual); // 赋值符应该有等号
             }
-        } else if (ch == '<') { //如果当前字符是小于号，表示可能是小于或小于等于。
+        } else if (ch=='='){
+            sy=EnumChar.eql;
+            getChar();
+        }else if (ch == '<') { //如果当前字符是小于号，表示可能是小于或小于等于。
             concat();
             getChar();
 
@@ -110,7 +124,7 @@ public class LexAnalysis {
 
                 sy = EnumChar.neq ;
                 getChar();
-            } else sy = EnumChar.lss ;;//如果不是等号，表示小于，设置sy为10。
+            } else sy = EnumChar.lss ;
         } else if (ch == '>') { // 大于，大于等于
             concat();
             getChar();
@@ -119,17 +133,33 @@ public class LexAnalysis {
                 concat();
                 sy = EnumChar.geq ;
                 getChar();
-            } else sy = EnumChar.gtr;//如果不是等号，表示大于，设置sy为8。
-        } else if (ch == '\n') { //结束符
+            } else sy = EnumChar.gtr;
+        }  else if (ch=='('){
+            sy=EnumChar.lparent;
+            getChar();
+        } else if (ch==')'){
+            sy=EnumChar.rparent;
+            getChar();
+        } else if (ch==';'){
+            sy=EnumChar.semicolon;
+            getChar();
+        }else if (ch==','){
+            sy=EnumChar.comma;
+            getChar();
+        }else if (ch == '\n') { //结束符
             System.out.println("扫描结束");
-        } else { // 读取其他合法字符
-            concat();
-            sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
-            if (EnumChar.nul==sy) {
-                EnumErrors.error(EnumErrors.illegalChar); //如果符号值为nul，表示字符非法，调用Errors.error(2)报告非法字符的错误。
-            }
+        }else{
+            EnumErrors.error(EnumErrors.illegalChar);
             getChar();
         }
+//        } else { // 读取其他合法字符
+//            concat();
+//            sy = charTable.isPunctuationMark(ch + "");//调用charTable.isPunctuationMark(ch + "")判断当前字符是否为合法字符，并将对应的符号值赋给sy。
+//            if (EnumChar.nul==sy) {
+//                EnumErrors.error(EnumErrors.illegalChar); //如果符号值为nul，表示字符非法，调用Errors.error(2)报告非法字符的错误。
+//            }
+//            getChar();
+//        }
         return strToken;
     }
 

@@ -29,6 +29,5 @@ public enum EnumChar {
     lparent,rparent,
     //标点符号
     comma,//逗号
-    colon,//冒号
     semicolon,//分号
 }

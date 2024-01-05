@@ -10,6 +10,8 @@ public class Main {
         //"src\main\resources\demo2.txt"
         //src\main\resources\demo3.txt
         //src\main\resources\demo4.txt
+        //src\main\resources\demo5.txt
+        //src\main\resources\demo6.txt
 
         //词法分析测试程序
 //        LexAnalysis lex;
