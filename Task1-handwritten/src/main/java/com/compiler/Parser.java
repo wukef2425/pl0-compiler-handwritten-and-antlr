@@ -33,6 +33,9 @@ public class Parser {
     public void procedure() {
         header();
         subprocedure();
+        if(lex.getType()!=EnumChar.eof){
+            EnumErrors.error(EnumErrors.noEof);
+        }
     }
     public void header(){
         if(lex.getType()!=EnumChar.procsy){

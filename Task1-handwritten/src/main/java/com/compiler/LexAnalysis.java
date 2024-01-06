@@ -141,7 +141,7 @@ public class LexAnalysis {
             getChar();
         }else if (ch == '\n') { //结束符
             System.out.println("扫描结束");
-            sy=EnumChar.nul;//扫描结束要让此时类型为NULL
+            sy=EnumChar.eof;//扫描结束要让此时类型为EOF
         }else{
             EnumErrors.error(EnumErrors.illegalChar);
             sy=EnumChar.nul;//错了也是此时类型为NULL

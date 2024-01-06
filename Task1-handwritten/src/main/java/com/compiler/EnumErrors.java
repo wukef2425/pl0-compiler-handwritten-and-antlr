@@ -27,7 +27,8 @@ public enum EnumErrors {
 
     noDo("WHILE语句缺少DO"),
     exInnerFault("表达式内部有误"),
-    noEnd("复合语句缺少END");
+    noEnd("复合语句缺少END"),
+    noEof("额外的输入,此时程序已结束");
 
 
     private final String tip;
