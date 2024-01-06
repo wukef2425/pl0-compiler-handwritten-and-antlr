@@ -6,15 +6,15 @@ import java.util.Map;
 public class SymbolTable {
     private static class Symbol {
         String name;
-        boolean isAssigned;
+        String value;
         boolean isUsed;
         boolean isVar; // 变量是true, 常量是false
         int lineDeclared;
 
-        Symbol(String name, boolean isVar, int lineDeclared) {
+        Symbol(String name, String value, boolean isVar, int lineDeclared) {
             this.name = name;
             this.isVar = isVar;
-            this.isAssigned = false;
+            this.value = value;
             this.isUsed = false;
             this.lineDeclared = lineDeclared;
         }
@@ -22,15 +22,15 @@ public class SymbolTable {
 
     private HashMap<String, Symbol> symbols = new HashMap<>();
 
-    public void declare(String name, boolean isVar, int line) throws Exception {
+    public void declare(String name, String value, boolean isVar, int line) throws Exception {
         if (symbols.containsKey(name)) {
             Symbol existing = symbols.get(name);
             throw new Exception("Semantic Error: " + name + " is already defined at line " + existing.lineDeclared);
         }
-        symbols.put(name, new Symbol(name, isVar, line));
+        symbols.put(name, new Symbol(name, value, isVar, line));
     }
 
-    public void assign(String name, int line) throws Exception {
+    public void assign(String name, int line, String string) throws Exception {
         Symbol symbol = symbols.get(name);
         if (symbol == null) {
             throw new Exception("Semantic Error: " + name + " is not defined (at line " + line + ")");
@@ -38,7 +38,7 @@ public class SymbolTable {
         if (!symbol.isVar) {
             throw new Exception("Semantic Error: Cannot assign to constant " + name + " (declared at line " + symbol.lineDeclared + ")");
         }
-        symbol.isAssigned = true;
+        symbol.value = string;
     }
 
     public void use(String name, int line) throws Exception {
@@ -46,7 +46,7 @@ public class SymbolTable {
         if (symbol == null) {
             throw new Exception("Semantic Error: " + name + " is not defined (at line " + line + ")");
         }
-        if (!symbol.isAssigned && symbol.isVar) {
+        if (symbol.value == null && symbol.isVar) {
             throw new Exception("Semantic Error: " + name + " is not assigned before use (declared at line " + symbol.lineDeclared + ")");
         }
         symbol.isUsed = true;
@@ -72,11 +72,11 @@ public class SymbolTable {
         System.out.printf("%-10s %-10s %-12s %-10s %-10s\n", "Name", "Type", "Declared At", "Assigned", "Used");
         for (Map.Entry<String, Symbol> entry : symbols.entrySet()) {
             Symbol symbol = entry.getValue();
-            System.out.printf("%-10s %-10s %-12d %-10b %-10b\n",
+            System.out.printf("%-10s %-10s %-12d %-10s %-10b\n",
                     symbol.name,
                     symbol.isVar ? "Variable" : "Constant",
                     symbol.lineDeclared,
-                    symbol.isAssigned,
+                    symbol.value,
                     symbol.isUsed);
         }
         System.out.println("----------------------------------------------------");

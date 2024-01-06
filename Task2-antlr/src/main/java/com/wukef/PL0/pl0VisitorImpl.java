@@ -65,7 +65,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
             int line = constDef.getStart().getLine();
 
             try {
-                symbolTable.declare(constName, false, line);
+                symbolTable.declare(constName, constValue, false, line);
                 emit(constName + " := " + constValue);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
@@ -84,7 +84,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
             String varName = variable.getText();
             int line = variable.getStart().getLine();
             try {
-                symbolTable.declare(varName, true, line);
+                symbolTable.declare(varName,null, true, line);
             } catch (Exception e) {
                 System.err.println(e.getMessage());
             }
@@ -105,7 +105,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         String expr = visit(ctx.expression());
         int line = ctx.getStart().getLine();
         try {
-            symbolTable.assign(ident, line); // 标记为已赋值
+            symbolTable.assign(ident, line, expr); // 标记为已赋值
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -136,7 +136,7 @@ public class pl0VisitorImpl extends pl0BaseVisitor<String> {
         intermediateCode.set(gotoDoStartIndex, "IF " + condition + " GOTO " + doStart);
         // 循环体结束后跳转回循环条件判断
         emit("GOTO " + whileCondStart);
-        // emit("GOTO " + whileCondStart);做完了才是循环西真正结束了
+        // emit("GOTO " + whileCondStart);做完了才是循环真正结束了
         int afterWhile = currentCodeLine;
         intermediateCode.set(gotoAfterWhileIndex, "GOTO " + afterWhile);
         return null;
