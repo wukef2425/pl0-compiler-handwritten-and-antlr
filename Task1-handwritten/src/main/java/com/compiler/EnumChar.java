@@ -30,4 +30,6 @@ public enum EnumChar {
     //标点符号
     comma,//逗号
     semicolon,//分号
+
+    eof//文件结束符
 }
